@@ -206,12 +206,75 @@ npm run dev
 
 Open http://localhost:3000 en kies een portaal vanaf de landing.
 
-De mockup gebruikt geen database; alle data komt uit `src/lib/mock/*`. Voor de echte werking:
+## 13b. Database opzetten
+
+De UI draait nu nog op mockdata uit `src/lib/mock/*`. Voor de productie-werking volg je deze stappen.
+
+### Stap 1 — Database hosting kiezen
+
+Drie redelijke opties:
+
+| Provider | Voordeel | Aanbevolen voor |
+| --- | --- | --- |
+| **Neon** | Serverless Postgres, gratis tier, Vercel-integratie | Productie + dev |
+| **Supabase** | Postgres + auth + storage in één | Wie auth wil hergebruiken |
+| **Vercel Postgres** | Native Vercel storage | Wie alles in Vercel wil houden |
+| **Local PostgreSQL** | Volledig lokaal | Pure dev |
+
+Snelste pad: in je Vercel project → **Storage** tab → **Create Database → Neon**. Vercel zet `DATABASE_URL` automatisch in je project envs.
+
+### Stap 2 — `.env` vullen
+
+Kopieer de connection string naar je lokale `.env`:
 
 ```bash
-npm run prisma:migrate
-npm run prisma:generate
+DATABASE_URL="postgresql://user:pass@host/db?sslmode=require"
 ```
+
+### Stap 3 — Schema toepassen + seeden
+
+```bash
+npm run prisma:generate     # Prisma client genereren
+npm run prisma:migrate      # tabellen aanmaken op de DB
+npm run prisma:seed         # mockdata in de DB laden
+```
+
+Daarna heb je 13 users, 7 studenten, 6 lidbedrijven, contracten, weekstaten, planning, FAQ, kennisartikelen en alle log-entiteiten in je database.
+
+### Stap 4 — Inspecteren
+
+```bash
+npm run prisma:studio
+```
+
+Opent een UI op http://localhost:5555 om de data te bekijken en te bewerken.
+
+### Stap 5 — Mockdata vervangen door queries
+
+In de pagina-bestanden vervang je imports zoals:
+
+```ts
+import { students } from '@/lib/mock/students';
+```
+
+door:
+
+```ts
+import { db } from '@/lib/db';
+const students = await db.student.findMany({ where: studentScopeFilter(ctx) });
+```
+
+`studentScopeFilter(ctx)` zit al klaar in `src/lib/security/rbac.ts`.
+
+### Stap 6 — Schema wijzigen
+
+Schema staat in `prisma/schema.prisma`. Wijziging? Run:
+
+```bash
+npm run prisma:migrate -- --name beschrijving_van_wijziging
+```
+
+Productie: gebruik `prisma migrate deploy` in je Vercel build (niet `migrate dev`).
 
 ## 14. Vercel deploy
 
