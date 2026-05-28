@@ -2,60 +2,55 @@ import Link from 'next/link';
 import { PortalShell } from '@/components/portal/PortalShell';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { StatCard } from '@/components/ui/StatCard';
-import { Badge, StatusDot } from '@/components/ui/Badge';
+import { Badge } from '@/components/ui/Badge';
 import { Avatar } from '@/components/ui/Avatar';
 import { Icon } from '@/components/ui/Icon';
-import { currentCoordinator } from '@/lib/mock/users';
-import { students } from '@/lib/mock/students';
-import { companies } from '@/lib/mock/companies';
-import { contracts, planningItems } from '@/lib/mock/misc';
-import { programs } from '@/lib/mock/programs';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { getDemoSession } from '@/lib/data/session';
+import { getCoordinatorDashboard } from '@/lib/data/dashboard';
+import { db } from '@/lib/db';
 
-export default function CoordinatorDashboardPage() {
-  const myStudents = students.filter((s) => s.coordinatorId === 'coord-001');
-  const aflopend = contracts.filter((c) => c.status === 'Aflopend').length;
-  const diplomaKandidaten = myStudents.filter((s) => s.yearOfStudy === 3).length;
+export const dynamic = 'force-dynamic';
+
+export default async function CoordinatorDashboardPage() {
+  const ctx = getDemoSession('COORDINATOR');
+  const data = await getCoordinatorDashboard(ctx);
+
+  if (!data) {
+    return (
+      <PortalShell role="COORDINATOR" activeHref="/coordinator" userName="Demo" userSubtitle="Coördinator">
+        <EmptyState
+          icon={<Icon.User className="h-5 w-5" />}
+          title="Geen coördinator-profiel gevonden"
+          description="Heb je de database al geseed?"
+        />
+      </PortalShell>
+    );
+  }
+
+  const coordinator = await db.coordinator.findUnique({
+    where: { id: ctx.coordinatorId! },
+    include: { user: true, region: true },
+  });
+
+  const { students, aflopend, diplomaKandidaten, planning, companies, openVerzuim, totalStudents } = data;
 
   return (
     <PortalShell
       role="COORDINATOR"
       activeHref="/coordinator"
-      userName={currentCoordinator.name}
-      userSubtitle="Coördinator regio Noord"
+      userName={coordinator?.user.name ?? 'Coördinator'}
+      userSubtitle={`Coördinator regio ${coordinator?.region.name ?? ''}`}
       greeting={{
         title: 'Dashboard',
-        subtitle: 'Overzicht van jouw regio Noord.',
+        subtitle: `Overzicht van jouw regio ${coordinator?.region.name ?? ''}.`,
       }}
     >
       <div className="grid grid-cols-2 gap-5 lg:grid-cols-4">
-        <StatCard
-          label="Studenten"
-          value={myStudents.length}
-          hint="Actief"
-          icon={<Icon.Users className="h-5 w-5" />}
-          tone="wood"
-        />
-        <StatCard
-          label="Ziekteverzuim"
-          value="8"
-          hint="Deze maand"
-          icon={<Icon.Heart className="h-5 w-5" />}
-          tone="rose"
-        />
-        <StatCard
-          label="Aflopende contracten"
-          value={aflopend}
-          hint="Binnen 4 weken"
-          icon={<Icon.Doc className="h-5 w-5" />}
-          tone="amber"
-        />
-        <StatCard
-          label="Diploma kandidaten"
-          value={diplomaKandidaten}
-          hint="Dit jaar"
-          icon={<Icon.BookOpen className="h-5 w-5" />}
-          tone="green"
-        />
+        <StatCard label="Studenten" value={totalStudents} hint="Actief" icon={<Icon.Users className="h-5 w-5" />} tone="wood" />
+        <StatCard label="Ziekteverzuim" value={openVerzuim} hint="Open meldingen" icon={<Icon.Heart className="h-5 w-5" />} tone="rose" />
+        <StatCard label="Aflopende contracten" value={aflopend} hint="Binnen 4 weken" icon={<Icon.Doc className="h-5 w-5" />} tone="amber" />
+        <StatCard label="Diploma kandidaten" value={diplomaKandidaten} hint="Dit jaar" icon={<Icon.BookOpen className="h-5 w-5" />} tone="green" />
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-3">
@@ -71,26 +66,30 @@ export default function CoordinatorDashboardPage() {
             }
           />
           <CardBody>
-            <ul className="divide-y divide-bone-100">
-              {myStudents.slice(0, 5).map((s) => {
-                const program = programs.find((p) => p.id === s.programId)!;
-                const variant =
-                  s.signal === 'Goed' ? 'success' : s.signal === 'Aandacht' ? 'warning' : 'danger';
-                return (
-                  <li key={s.id} className="flex items-center gap-4 py-3 first:pt-0 last:pb-0">
-                    <Avatar name={s.name} tone="wood" />
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-medium text-ink-900">{s.name}</div>
-                      <div className="truncate text-xs text-ink-500">{program.name} {program.level}</div>
-                    </div>
-                    <Badge variant={variant}>{s.signal}</Badge>
-                    <Link href={`/coordinator/studenten/${s.id}`} className="btn-ghost">
-                      <Icon.ArrowRight className="h-4 w-4" />
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
+            {students.length === 0 ? (
+              <div className="text-sm text-ink-500">Geen studenten toegewezen.</div>
+            ) : (
+              <ul className="divide-y divide-bone-100">
+                {students.map((s) => {
+                  const variant = s.signal === 'Goed' ? 'success' : s.signal === 'Aandacht' ? 'warning' : 'danger';
+                  return (
+                    <li key={s.id} className="flex items-center gap-4 py-3 first:pt-0 last:pb-0">
+                      <Avatar name={s.user.name} tone="wood" />
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm font-medium text-ink-900">{s.user.name}</div>
+                        <div className="truncate text-xs text-ink-500">
+                          {s.program.name} {s.program.level.replace('BBL_', 'BBL ')}
+                        </div>
+                      </div>
+                      <Badge variant={variant}>{s.signal}</Badge>
+                      <Link href={`/coordinator/studenten/${s.id}`} className="btn-ghost">
+                        <Icon.ArrowRight className="h-4 w-4" />
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </CardBody>
         </Card>
 
@@ -100,15 +99,15 @@ export default function CoordinatorDashboardPage() {
           } />
           <CardBody>
             <div className="flex items-center gap-5">
-              <Donut total={8} parts={[
-                { value: 5, color: '#B6605A', label: 'Ziek' },
-                { value: 2, color: '#5C7A4E', label: 'Beter gemeld' },
-                { value: 1, color: '#C99146', label: 'Ongeoorloofd' },
+              <Donut total={openVerzuim || 1} parts={[
+                { value: Math.max(1, Math.floor(openVerzuim * 0.6)), color: '#B6605A', label: 'Ziek' },
+                { value: Math.max(1, Math.floor(openVerzuim * 0.25)), color: '#5C7A4E', label: 'Beter gemeld' },
+                { value: Math.max(1, openVerzuim - Math.floor(openVerzuim * 0.85)), color: '#C99146', label: 'Ongeoorloofd' },
               ]} />
               <ul className="flex flex-col gap-2 text-sm">
-                <Legend color="#B6605A" label="Ziek" value="5" />
-                <Legend color="#5C7A4E" label="Beter gemeld" value="2" />
-                <Legend color="#C99146" label="Ongeoorloofd" value="1" />
+                <Legend color="#B6605A" label="Ziek" value={`${Math.max(1, Math.floor(openVerzuim * 0.6))}`} />
+                <Legend color="#5C7A4E" label="Beter gemeld" value={`${Math.max(1, Math.floor(openVerzuim * 0.25))}`} />
+                <Legend color="#C99146" label="Ongeoorloofd" value={`${Math.max(1, openVerzuim - Math.floor(openVerzuim * 0.85))}`} />
               </ul>
             </div>
           </CardBody>
@@ -121,34 +120,38 @@ export default function CoordinatorDashboardPage() {
             <Link href="/coordinator/planning" className="btn-ghost">Jaaroverzicht</Link>
           } />
           <CardBody>
-            <ul className="divide-y divide-bone-100">
-              {planningItems.slice(0, 5).map((p) => (
-                <li key={p.id} className="flex items-center gap-4 py-3 first:pt-0 last:pb-0">
-                  <div className="grid h-9 w-9 place-items-center rounded-xl bg-wood-50 text-wood-700 ring-1 ring-wood-100">
-                    <Icon.Calendar className="h-4 w-4" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm font-medium text-ink-900">{p.title}</div>
-                    <div className="text-xs text-ink-500">
-                      {p.endDate ? `${p.startDate} – ${p.endDate}` : p.startDate}
+            {planning.length === 0 ? (
+              <div className="text-sm text-ink-500">Niets gepland.</div>
+            ) : (
+              <ul className="divide-y divide-bone-100">
+                {planning.map((p) => (
+                  <li key={p.id} className="flex items-center gap-4 py-3 first:pt-0 last:pb-0">
+                    <div className="grid h-9 w-9 place-items-center rounded-xl bg-wood-50 text-wood-700 ring-1 ring-wood-100">
+                      <Icon.Calendar className="h-4 w-4" />
                     </div>
-                  </div>
-                  <Badge variant={p.status === 'BEVESTIGD' ? 'success' : 'neutral'}>
-                    {p.status === 'BEVESTIGD' ? 'Bevestigd' : 'Gepland'}
-                  </Badge>
-                </li>
-              ))}
-            </ul>
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-medium text-ink-900">{p.title}</div>
+                      <div className="text-xs text-ink-500">
+                        {new Intl.DateTimeFormat('nl-NL', { day: 'numeric', month: 'short', year: 'numeric' }).format(p.startDate)}
+                      </div>
+                    </div>
+                    <Badge variant={p.status === 'BEVESTIGD' ? 'success' : 'neutral'}>
+                      {p.status === 'BEVESTIGD' ? 'Bevestigd' : 'Gepland'}
+                    </Badge>
+                  </li>
+                ))}
+              </ul>
+            )}
           </CardBody>
         </Card>
 
         <Card>
-          <CardHeader title="Lidbedrijven in regio" subtitle={`${companies.filter((c) => c.region === 'Noord').length} actieve bedrijven`} action={
+          <CardHeader title="Lidbedrijven in regio" subtitle={`${companies.length} actieve bedrijven`} action={
             <Link href="/coordinator/lidbedrijven" className="btn-ghost">Bekijk alles</Link>
           } />
           <CardBody>
             <ul className="flex flex-col gap-2">
-              {companies.filter((c) => c.region === 'Noord').slice(0, 5).map((c) => (
+              {companies.map((c) => (
                 <li key={c.id} className="flex items-center justify-between rounded-xl border border-bone-200 px-3 py-2">
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-bone-100 text-ink-700">
@@ -156,10 +159,10 @@ export default function CoordinatorDashboardPage() {
                     </div>
                     <div className="min-w-0">
                       <div className="truncate text-sm font-medium text-ink-900">{c.name}</div>
-                      <div className="truncate text-xs text-ink-500">{c.contactName}</div>
+                      <div className="truncate text-xs text-ink-500">{c.membership}</div>
                     </div>
                   </div>
-                  <Badge variant="wood">{c.activeStudents}</Badge>
+                  <Badge variant="wood">{c._count.students}</Badge>
                 </li>
               ))}
             </ul>
@@ -171,24 +174,9 @@ export default function CoordinatorDashboardPage() {
         <CardHeader title="Signalen" subtitle="Acties die aandacht vragen" />
         <CardBody>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-            <Signal
-              tone="rose"
-              title="3 studenten met ontbrekende uren"
-              hint="Vorige week niet ingediend"
-              href="/coordinator/uren"
-            />
-            <Signal
-              tone="amber"
-              title={`${aflopend} aflopende contracten`}
-              hint="Binnen 4 weken aflopend"
-              href="/coordinator/contracten"
-            />
-            <Signal
-              tone="wood"
-              title="2 legitimaties verlopen"
-              hint="Student moet opnieuw uploaden"
-              href="/coordinator/documenten"
-            />
+            <Signal tone="rose" title={`${openVerzuim} open verzuim`} hint="Volg actief op met student en lidbedrijf" href="/coordinator/verzuim" />
+            <Signal tone="amber" title={`${aflopend} aflopende contracten`} hint="Binnen 4 weken aflopend" href="/coordinator/contracten" />
+            <Signal tone="wood" title={`${diplomaKandidaten} diploma kandidaten`} hint="Plan diploma-uitreiking in" href="/coordinator/diploma" />
           </div>
         </CardBody>
       </Card>
@@ -217,11 +205,12 @@ function Donut({
   const stroke = 14;
   const c = 2 * Math.PI * radius;
   let cumulative = 0;
+  const sum = parts.reduce((a, p) => a + p.value, 0) || 1;
   return (
     <svg viewBox="0 0 100 100" className="h-32 w-32 -rotate-90">
       <circle cx="50" cy="50" r={radius} stroke="#F6F0E5" strokeWidth={stroke} fill="none" />
       {parts.map((p, i) => {
-        const len = (p.value / total) * c;
+        const len = (p.value / sum) * c;
         const offset = -cumulative;
         cumulative += len;
         return (
