@@ -1,0 +1,544 @@
+// SWV Meubel portaal datamodel.
+// Exact Synergy is source of truth voor stamgegevens; Cleverdesk voor urenregistratie.
+// Het portaal cached deze data lokaal en houdt audit + security logs eigen bij.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =====================================================================
+// Identity & RBAC
+// =====================================================================
+
+enum Role {
+  STUDENT
+  COORDINATOR
+  COMPANY
+  ADMIN
+}
+
+model User {
+  id                String              @id @default(cuid())
+  email             String              @unique
+  name              String
+  role              Role
+  passwordHash      String?             // null als SSO/passwordless
+  twoFactorEnabled  Boolean             @default(false)
+  twoFactorSecret   String?
+  regionId          String?
+  region            Region?             @relation(fields: [regionId], references: [id])
+  lastLoginAt       DateTime?
+  lockedUntil       DateTime?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  studentProfile    Student?
+  coordinatorProfile Coordinator?
+  companyContacts   CompanyContact[]
+  sessions          Session[]
+  auditLogs         AuditLog[]
+  securityLogs      SecurityLog[]
+  documentAccessLogs DocumentAccessLog[]
+  documentsUploaded Document[]          @relation("DocUploader")
+  approvals         TimesheetApproval[]
+  tasksAssigned     Task[]              @relation("TaskAssignee")
+  messagesFrom      Message[]           @relation("MsgFrom")
+  messagesTo        Message[]           @relation("MsgTo")
+
+  @@index([role])
+  @@index([regionId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash    String   @unique
+  ip           String?
+  userAgent    String?
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Region {
+  id        String       @id @default(cuid())
+  code      String       @unique
+  name      String
+  users     User[]
+  students  Student[]
+  companies Company[]
+  coordinators Coordinator[]
+}
+
+// =====================================================================
+// Onderwijs domein
+// =====================================================================
+
+enum ProgramLevel {
+  BBL_2
+  BBL_3
+  BBL_4
+}
+
+model EducationProgram {
+  id             String         @id @default(cuid())
+  name           String
+  level          ProgramLevel
+  durationMonths Int
+  students       Student[]
+}
+
+model Company {
+  id            String           @id @default(cuid())
+  externalId    String?          @unique  // Exact Synergy ID
+  name          String
+  regionId      String
+  region        Region           @relation(fields: [regionId], references: [id])
+  membership    String           @default("CBM")
+  contacts      CompanyContact[]
+  contracts     Contract[]
+  students      Student[]
+  documents     Document[]
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  @@index([regionId])
+}
+
+model CompanyContact {
+  id        String  @id @default(cuid())
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      String  // bv. "Praktijkopleider", "HR"
+  primary   Boolean @default(false)
+
+  @@unique([companyId, userId])
+}
+
+model Coordinator {
+  id        String  @id @default(cuid())
+  userId    String  @unique
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  regionId  String
+  region    Region  @relation(fields: [regionId], references: [id])
+  students  Student[]
+}
+
+model Student {
+  id                  String              @id @default(cuid())
+  externalId          String              @unique  // Exact Synergy ID - bron
+  cleverdeskId        String?             @unique  // Cleverdesk mapping
+  userId              String              @unique
+  user                User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  regionId            String
+  region              Region              @relation(fields: [regionId], references: [id])
+  companyId           String
+  company             Company             @relation(fields: [companyId], references: [id])
+  coordinatorId       String
+  coordinator         Coordinator         @relation(fields: [coordinatorId], references: [id])
+  programId           String
+  program             EducationProgram    @relation(fields: [programId], references: [id])
+  yearOfStudy         Int
+  startDate           DateTime
+  expectedDiplomaDate DateTime?
+  signal              String              @default("Goed")  // 'Goed' | 'Aandacht' | 'Risico'
+  legitimationDocId   String?
+  legitimationDoc     Document?           @relation("Legitimation", fields: [legitimationDocId], references: [id])
+  contracts           Contract[]
+  timesheets          Timesheet[]
+  absences            Absence[]
+  holidayBalance      HolidayBalance?
+  documents           Document[]
+  tasks               Task[]
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+
+  @@index([regionId])
+  @@index([companyId])
+  @@index([coordinatorId])
+}
+
+enum ContractStatus {
+  ACTIEF
+  AFLOPEND
+  VERLOPEN
+  CONCEPT
+}
+
+model Contract {
+  id            String         @id @default(cuid())
+  externalId    String?        @unique  // Exact Synergy
+  studentId     String
+  student       Student        @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  companyId     String
+  company       Company        @relation(fields: [companyId], references: [id])
+  startDate     DateTime
+  endDate       DateTime
+  hoursPerWeek  Int
+  status        ContractStatus @default(ACTIEF)
+  documentId    String?
+  document      Document?      @relation("ContractDoc", fields: [documentId], references: [id])
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@index([studentId])
+  @@index([companyId])
+  @@index([status])
+}
+
+enum AbsenceType {
+  ZIEKTE
+  VERLOF
+}
+
+model Absence {
+  id          String      @id @default(cuid())
+  externalId  String?     @unique  // Exact
+  studentId   String
+  student     Student     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  type        AbsenceType
+  startDate   DateTime
+  endDate     DateTime?
+  reportedAt  DateTime    @default(now())
+  closedAt    DateTime?
+  note        String?
+
+  @@index([studentId, type])
+}
+
+model HolidayBalance {
+  studentId           String   @id
+  student             Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  totalDays           Int
+  usedDays            Int      @default(0)
+  remainingDays       Int
+  holidayMoneyCents   Int      @default(0)
+  lastUpdated         DateTime @default(now())
+}
+
+// =====================================================================
+// Urenregistratie (Cleverdesk = source of truth, portal mirrored)
+// =====================================================================
+
+enum TimesheetStatus {
+  CONCEPT
+  INGEDIEND
+  GOEDGEKEURD
+  AFGEKEURD
+  CORRECTIE_GEVRAAGD
+}
+
+enum TimeEntryType {
+  PRAKTIJK
+  SCHOOL
+  ZIEKTE
+  VERLOF
+  AFWEZIG
+}
+
+model Timesheet {
+  id              String              @id @default(cuid())
+  externalId      String?             @unique  // Cleverdesk
+  studentId       String
+  student         Student             @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  weekNumber      Int
+  year            Int
+  weekStartDate   DateTime
+  status          TimesheetStatus     @default(CONCEPT)
+  submittedAt     DateTime?
+  rejectionReason String?
+  entries         TimeEntry[]
+  approvals       TimesheetApproval[]
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  @@unique([studentId, year, weekNumber])
+  @@index([status])
+}
+
+model TimeEntry {
+  id          String        @id @default(cuid())
+  timesheetId String
+  timesheet   Timesheet     @relation(fields: [timesheetId], references: [id], onDelete: Cascade)
+  date        DateTime
+  type        TimeEntryType
+  hours       Decimal       @db.Decimal(4, 2)
+  note        String?
+
+  @@index([timesheetId])
+  @@index([date])
+}
+
+model TimesheetApproval {
+  id          String          @id @default(cuid())
+  timesheetId String
+  timesheet   Timesheet       @relation(fields: [timesheetId], references: [id], onDelete: Cascade)
+  approverId  String
+  approver    User            @relation(fields: [approverId], references: [id])
+  decision    TimesheetStatus
+  reason      String?
+  decidedAt   DateTime        @default(now())
+
+  @@index([timesheetId])
+}
+
+// =====================================================================
+// Documenten (AVG-proof)
+// =====================================================================
+
+enum DocumentCategory {
+  CONTRACT
+  LEGITIMATIE
+  BEOORDELING
+  BPV
+  OVERIG
+}
+
+model Document {
+  id              String              @id @default(cuid())
+  studentId       String?
+  student         Student?            @relation(fields: [studentId], references: [id])
+  companyId       String?
+  company         Company?            @relation(fields: [companyId], references: [id])
+  category        DocumentCategory
+  fileName        String
+  storageKey      String              // verwijst naar versleutelde object storage
+  mimeType        String
+  sizeBytes       Int
+  checksum        String              // SHA-256 voor integriteit
+  encryptionKeyId String              // KMS sleutel
+  uploadedByUserId String
+  uploadedBy      User                @relation("DocUploader", fields: [uploadedByUserId], references: [id])
+  uploadedAt      DateTime            @default(now())
+  retentionUntil  DateTime            // automatisch berekend per categorie
+  accessLogs      DocumentAccessLog[]
+  contracts       Contract[]          @relation("ContractDoc")
+  asLegitimationFor Student[]         @relation("Legitimation")
+
+  @@index([studentId, category])
+  @@index([companyId, category])
+  @@index([retentionUntil])
+}
+
+model DocumentAccessLog {
+  id          String   @id @default(cuid())
+  documentId  String
+  document    Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  action      String   // 'view' | 'download' | 'upload' | 'delete'
+  ip          String?
+  userAgent   String?
+  at          DateTime @default(now())
+
+  @@index([documentId])
+  @@index([userId])
+}
+
+// =====================================================================
+// Planning, taken, berichten
+// =====================================================================
+
+enum PlanningType {
+  SCHOOLDAG
+  BPV
+  EVALUATIE
+  PRAKTIJKBEOORDELING
+  EXAMEN
+  DIPLOMA
+  UITSTROOM
+  NIEUWE_OPLEIDING
+}
+
+enum PlanningStatus {
+  GEPLAND
+  BEVESTIGD
+  AFGEROND
+  GEANNULEERD
+}
+
+model PlanningItem {
+  id         String         @id @default(cuid())
+  title      String
+  type       PlanningType
+  startDate  DateTime
+  endDate    DateTime?
+  regionId   String?
+  programId  String?
+  status     PlanningStatus @default(GEPLAND)
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  @@index([type, status])
+}
+
+enum TaskStatus {
+  OPEN
+  IN_BEHANDELING
+  AFGEROND
+}
+
+enum TaskPriority {
+  LAAG
+  NORMAAL
+  HOOG
+}
+
+model Task {
+  id              String       @id @default(cuid())
+  title           String
+  studentId       String?
+  student         Student?     @relation(fields: [studentId], references: [id])
+  assignedToUserId String?
+  assignedTo      User?        @relation("TaskAssignee", fields: [assignedToUserId], references: [id])
+  dueDate         DateTime?
+  status          TaskStatus   @default(OPEN)
+  priority        TaskPriority @default(NORMAAL)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+}
+
+model Message {
+  id          String   @id @default(cuid())
+  fromUserId  String
+  fromUser    User     @relation("MsgFrom", fields: [fromUserId], references: [id])
+  toUserId    String
+  toUser      User     @relation("MsgTo", fields: [toUserId], references: [id])
+  subject     String
+  body        String
+  sentAt      DateTime @default(now())
+  readAt      DateTime?
+}
+
+// =====================================================================
+// FAQ + Kennisbank
+// =====================================================================
+
+enum PublishStatus {
+  CONCEPT
+  GEPUBLICEERD
+  GEARCHIVEERD
+}
+
+model FaqItem {
+  id          String        @id @default(cuid())
+  question    String
+  answer      String
+  category    String
+  roles       Role[]
+  status      PublishStatus @default(CONCEPT)
+  order       Int           @default(0)
+  updatedAt   DateTime      @updatedAt
+  updatedBy   String
+}
+
+model KnowledgeArticle {
+  id          String        @id @default(cuid())
+  title       String
+  body        String
+  category    String
+  tags        String[]
+  roles       Role[]
+  status      PublishStatus @default(CONCEPT)
+  version     Int           @default(1)
+  updatedAt   DateTime      @updatedAt
+  updatedBy   String
+}
+
+// =====================================================================
+// Integraties + logging
+// =====================================================================
+
+enum IntegrationKey {
+  EXACT_SYNERGY
+  CLEVERDESK
+}
+
+model Integration {
+  key              IntegrationKey @id
+  name             String
+  status           String         @default("ACTIEF")
+  webhookEnabled   Boolean        @default(true)
+  pollIntervalMin  Int            @default(60)
+  scopes           String[]
+  lastSyncAt       DateTime?
+  nextSyncAt       DateTime?
+  config           Json?          // versleuteld in productie
+  mappings         IntegrationMapping[]
+  syncLogs         SyncLog[]
+}
+
+model IntegrationMapping {
+  id            String         @id @default(cuid())
+  integration   IntegrationKey
+  source        Integration    @relation(fields: [integration], references: [key])
+  objectType    String         // 'Student' | 'Company' | 'Coordinator' etc.
+  internalId    String
+  externalId    String
+  createdAt     DateTime       @default(now())
+
+  @@unique([integration, objectType, externalId])
+  @@index([integration, objectType, internalId])
+}
+
+enum SyncStatus {
+  OK
+  FOUT
+  GENEGEERD
+}
+
+model SyncLog {
+  id           String         @id @default(cuid())
+  integration  IntegrationKey
+  source       Integration    @relation(fields: [integration], references: [key])
+  direction    String         // 'IN' | 'OUT'
+  objectType   String
+  externalId   String?
+  status       SyncStatus
+  startedAt    DateTime       @default(now())
+  durationMs   Int
+  message      String?
+
+  @@index([integration, startedAt])
+  @@index([status])
+}
+
+model AuditLog {
+  id           String   @id @default(cuid())
+  at           DateTime @default(now())
+  actorUserId  String
+  actor        User     @relation(fields: [actorUserId], references: [id])
+  actorRole    Role
+  action       String
+  objectType   String
+  objectId     String
+  ip           String?
+  userAgent    String?
+  context      Json?
+
+  @@index([actorUserId, at])
+  @@index([objectType, objectId])
+}
+
+model SecurityLog {
+  id        String   @id @default(cuid())
+  at        DateTime @default(now())
+  severity  String
+  event     String
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  ip        String?
+  userAgent String?
+  message   String
+
+  @@index([severity, at])
+}

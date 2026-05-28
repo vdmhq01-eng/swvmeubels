@@ -1,0 +1,60 @@
+import Link from 'next/link';
+import { Avatar } from '@/components/ui/Avatar';
+import { Icon } from '@/components/ui/Icon';
+
+export function Topbar({
+  userName,
+  userSubtitle,
+  showSearch = true,
+  greeting,
+}: {
+  userName: string;
+  userSubtitle: string;
+  showSearch?: boolean;
+  greeting?: { title: string; subtitle: string };
+}) {
+  return (
+    <header className="sticky top-0 z-30 flex items-center justify-between gap-4 border-b border-bone-200 bg-bone-50/85 px-4 py-4 backdrop-blur lg:px-8">
+      <div className="min-w-0">
+        {greeting ? (
+          <>
+            <h1 className="truncate font-display text-2xl font-semibold tracking-tight text-ink-900 sm:text-3xl">
+              {greeting.title}
+            </h1>
+            <p className="mt-0.5 text-sm text-ink-500">{greeting.subtitle}</p>
+          </>
+        ) : null}
+      </div>
+
+      <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+        {showSearch ? (
+          <div className="relative hidden md:block">
+            <Icon.Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" />
+            <input
+              type="search"
+              placeholder="Zoek student, bedrijf of document"
+              className="input w-72 pl-9"
+            />
+          </div>
+        ) : null}
+
+        <Link
+          href="#"
+          className="relative grid h-10 w-10 place-items-center rounded-full border border-bone-200 bg-white text-ink-600 hover:bg-bone-100"
+          aria-label="Meldingen"
+        >
+          <Icon.Bell className="h-[18px] w-[18px]" />
+          <span className="absolute right-2 top-2 inline-block h-2 w-2 rounded-full bg-rose-500" />
+        </Link>
+
+        <div className="flex items-center gap-3 rounded-full border border-bone-200 bg-white py-1.5 pl-1.5 pr-3">
+          <Avatar name={userName} size="sm" />
+          <div className="hidden text-left leading-tight sm:block">
+            <div className="text-sm font-medium text-ink-900">{userName}</div>
+            <div className="text-xs text-ink-500">{userSubtitle}</div>
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+}

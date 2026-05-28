@@ -1,0 +1,72 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html, body {
+  background-color: #FBF8F3;
+  color: #231A12;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@layer components {
+  .card {
+    @apply bg-white border border-bone-200 rounded-2xl shadow-card;
+  }
+  .card-padded {
+    @apply card p-6;
+  }
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-wood-500 px-4 py-2.5 text-sm font-medium text-white shadow-soft hover:bg-wood-600 focus:outline-none focus-visible:shadow-ring transition;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-ink-800 border border-bone-200 hover:bg-bone-50 transition;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-ink-700 hover:bg-bone-100 transition;
+  }
+  .input {
+    @apply w-full rounded-xl border border-bone-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-300 focus:outline-none focus:border-wood-300 focus:shadow-ring;
+  }
+  .label {
+    @apply text-xs font-medium uppercase tracking-wide text-ink-500;
+  }
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium;
+  }
+  .badge-success { @apply badge bg-emerald-50 text-emerald-700 border border-emerald-100; }
+  .badge-warning { @apply badge bg-amber-50 text-amber-700 border border-amber-100; }
+  .badge-danger  { @apply badge bg-rose-50 text-rose-700 border border-rose-100; }
+  .badge-info    { @apply badge bg-sky-50 text-sky-700 border border-sky-100; }
+  .badge-neutral { @apply badge bg-bone-100 text-ink-700 border border-bone-200; }
+  .badge-wood    { @apply badge bg-wood-50 text-wood-700 border border-wood-100; }
+
+  .table-row {
+    @apply border-b border-bone-100 last:border-0;
+  }
+  .table-cell {
+    @apply px-4 py-3 text-sm text-ink-800 align-middle;
+  }
+  .table-head {
+    @apply px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-ink-500 bg-bone-50;
+  }
+
+  .nav-link {
+    @apply flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-ink-700 hover:bg-bone-100 transition;
+  }
+  .nav-link-active {
+    @apply nav-link bg-wood-50 text-wood-700 font-medium;
+  }
+}
+
+/* Subtle wood-grain texture utility for hero strips */
+.bg-grain {
+  background-image:
+    radial-gradient(circle at 20% 10%, rgba(184,145,92,0.08), transparent 40%),
+    radial-gradient(circle at 80% 0%, rgba(122,111,97,0.06), transparent 50%),
+    linear-gradient(180deg, #FBF8F3 0%, #F6F0E5 100%);
+}
