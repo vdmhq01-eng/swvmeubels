@@ -37,9 +37,10 @@ export default function HomePage() {
           <Logo />
           <div className="flex items-center gap-2">
             <span className="badge-neutral">Demo omgeving</span>
-            <Link href="/admin/integraties" className="btn-secondary">
-              <Icon.Settings className="h-4 w-4" />
-              Integratiebeheer
+            <Link href="/help" className="btn-ghost">Help</Link>
+            <Link href="/login" className="btn-primary">
+              <Icon.Lock className="h-4 w-4" />
+              Inloggen
             </Link>
           </div>
         </header>
@@ -95,11 +96,11 @@ export default function HomePage() {
         <footer className="flex flex-wrap items-center justify-between gap-4 text-xs text-ink-500">
           <div>© {new Date().getFullYear()} SWV Meubel · Demo build voor productconcept</div>
           <div className="flex items-center gap-3">
-            <span>Volledig Nederlands</span>
+            <Link href="/privacy" className="hover:text-wood-700">Privacy</Link>
             <span>·</span>
-            <span>HTTPS only</span>
+            <Link href="/help" className="hover:text-wood-700">Help</Link>
             <span>·</span>
-            <span>RBAC + ABAC</span>
+            <Link href="/login" className="hover:text-wood-700">Inloggen</Link>
           </div>
         </footer>
       </div>

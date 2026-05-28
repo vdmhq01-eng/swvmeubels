@@ -2,7 +2,7 @@ import { PortalShell } from '@/components/portal/PortalShell';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Avatar } from '@/components/ui/Avatar';
-import { Icon } from '@/components/ui/Icon';
+import { ApprovalActions } from '@/components/uren/ApprovalActions';
 import { currentCompany } from '@/lib/mock/users';
 import { pendingApprovals } from '@/lib/mock/timesheets';
 import { formatHours, weekRange } from '@/lib/utils';
@@ -69,19 +69,11 @@ export default function LidbedrijfGoedkeurenPage() {
                     <span className="ml-2"><Badge variant="warning">{formatHours(p.timesheet.totals.ontbrekend)} ontbrekend</Badge></span>
                   ) : null}
                 </div>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    className="input h-10 w-56"
-                    placeholder="Reden (verplicht bij afkeur)"
-                  />
-                  <button className="btn-secondary">
-                    <Icon.X className="h-4 w-4" /> Afkeuren
-                  </button>
-                  <button className="btn-primary">
-                    <Icon.Check className="h-4 w-4" /> Goedkeuren
-                  </button>
-                </div>
+                <ApprovalActions
+                  timesheetId={p.timesheet.id}
+                  studentName={p.studentName}
+                  withReasonInput
+                />
               </div>
             </CardBody>
           </Card>

@@ -3,6 +3,7 @@ import { PortalShell } from '@/components/portal/PortalShell';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Badge, StatusDot } from '@/components/ui/Badge';
 import { Icon } from '@/components/ui/Icon';
+import { ResyncButton } from '@/components/admin/ResyncButton';
 import { currentAdmin } from '@/lib/mock/users';
 import { integrations, recentSyncLogs } from '@/lib/mock/integrations';
 import { formatDate } from '@/lib/utils';
@@ -98,10 +99,7 @@ export default function IntegratiesPage() {
                 </div>
 
                 <div className="mt-5 flex flex-wrap items-center gap-2">
-                  <button className="btn-primary">
-                    <Icon.Refresh className="h-4 w-4" />
-                    Resync nu
-                  </button>
+                  <ResyncButton integration={integration.key} />
                   <button className="btn-secondary">
                     <Icon.Settings className="h-4 w-4" />
                     Configuratie

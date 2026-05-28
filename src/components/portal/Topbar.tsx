@@ -1,29 +1,39 @@
 import Link from 'next/link';
 import { Avatar } from '@/components/ui/Avatar';
 import { Icon } from '@/components/ui/Icon';
+import { MobileMenu } from './MobileMenu';
+import type { Role } from '@/lib/types';
+import { navigation } from '@/lib/navigation';
 
 export function Topbar({
   userName,
   userSubtitle,
   showSearch = true,
   greeting,
+  role,
+  activeHref,
 }: {
   userName: string;
   userSubtitle: string;
   showSearch?: boolean;
   greeting?: { title: string; subtitle: string };
+  role: Role;
+  activeHref: string;
 }) {
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between gap-4 border-b border-bone-200 bg-bone-50/85 px-4 py-4 backdrop-blur lg:px-8">
-      <div className="min-w-0">
-        {greeting ? (
-          <>
-            <h1 className="truncate font-display text-2xl font-semibold tracking-tight text-ink-900 sm:text-3xl">
-              {greeting.title}
-            </h1>
-            <p className="mt-0.5 text-sm text-ink-500">{greeting.subtitle}</p>
-          </>
-        ) : null}
+      <div className="flex min-w-0 items-center gap-3">
+        <MobileMenu items={navigation[role]} role={role} activeHref={activeHref} />
+        <div className="min-w-0">
+          {greeting ? (
+            <>
+              <h1 className="truncate font-display text-xl font-semibold tracking-tight text-ink-900 sm:text-2xl lg:text-3xl">
+                {greeting.title}
+              </h1>
+              <p className="mt-0.5 hidden text-sm text-ink-500 sm:block">{greeting.subtitle}</p>
+            </>
+          ) : null}
+        </div>
       </div>
 
       <div className="flex shrink-0 items-center gap-2 sm:gap-3">
@@ -39,7 +49,7 @@ export function Topbar({
         ) : null}
 
         <Link
-          href="#"
+          href={`/${role.toLowerCase().replace('coordinator', 'coordinator').replace('company', 'lidbedrijf').replace('admin', 'admin').replace('student', 'student')}/meldingen`}
           className="relative grid h-10 w-10 place-items-center rounded-full border border-bone-200 bg-white text-ink-600 hover:bg-bone-100"
           aria-label="Meldingen"
         >
@@ -47,14 +57,26 @@ export function Topbar({
           <span className="absolute right-2 top-2 inline-block h-2 w-2 rounded-full bg-rose-500" />
         </Link>
 
-        <div className="flex items-center gap-3 rounded-full border border-bone-200 bg-white py-1.5 pl-1.5 pr-3">
+        <Link
+          href={portalSettingsHref(role)}
+          className="flex items-center gap-3 rounded-full border border-bone-200 bg-white py-1.5 pl-1.5 pr-3 hover:bg-bone-50"
+        >
           <Avatar name={userName} size="sm" />
           <div className="hidden text-left leading-tight sm:block">
             <div className="text-sm font-medium text-ink-900">{userName}</div>
             <div className="text-xs text-ink-500">{userSubtitle}</div>
           </div>
-        </div>
+        </Link>
       </div>
     </header>
   );
+}
+
+function portalSettingsHref(role: Role) {
+  switch (role) {
+    case 'STUDENT': return '/student/instellingen';
+    case 'COORDINATOR': return '/coordinator/instellingen';
+    case 'COMPANY': return '/lidbedrijf/instellingen';
+    case 'ADMIN': return '/admin/instellingen';
+  }
 }

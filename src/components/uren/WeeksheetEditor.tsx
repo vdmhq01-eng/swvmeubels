@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Icon } from '@/components/ui/Icon';
+import { useToast } from '@/components/ui/Toast';
 import { formatHours, weekRange } from '@/lib/utils';
 import type { Timesheet, TimeEntryType } from '@/lib/types';
 
@@ -54,6 +55,8 @@ function buildInitialRows(ts: Timesheet): Row[] {
 
 export function WeeksheetEditor({ timesheet }: { timesheet: Timesheet }) {
   const [rows, setRows] = useState<Row[]>(() => buildInitialRows(timesheet));
+  const [status, setStatus] = useState<'CONCEPT' | 'INGEDIEND'>('CONCEPT');
+  const { toast } = useToast();
 
   const totals = useMemo(() => {
     const t = { PRAKTIJK: 0, SCHOOL: 0, ZIEKTE: 0, VERLOF: 0, AFWEZIG: 0, totaal: 0 };
@@ -89,11 +92,31 @@ export function WeeksheetEditor({ timesheet }: { timesheet: Timesheet }) {
         subtitle={weekRange(timesheet.weekStartDate)}
         action={
           <div className="flex items-center gap-2">
-            <Badge variant="warning">Concept</Badge>
-            <button type="button" className="btn-secondary">
+            <Badge variant={status === 'INGEDIEND' ? 'info' : 'warning'}>
+              {status === 'INGEDIEND' ? 'Ingediend' : 'Concept'}
+            </Badge>
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={() => {
+                setStatus('CONCEPT');
+                toast({ variant: 'success', title: 'Opgeslagen als concept', description: 'Je kunt deze week later nog aanpassen.' });
+              }}
+            >
               Opslaan als concept
             </button>
-            <button type="button" className="btn-primary">
+            <button
+              type="button"
+              className="btn-primary"
+              onClick={() => {
+                if (ontbrekend > 0) {
+                  toast({ variant: 'error', title: 'Nog uren ontbrekend', description: `Je bent nog ${formatHours(ontbrekend)} onder de weeknorm.` });
+                  return;
+                }
+                setStatus('INGEDIEND');
+                toast({ variant: 'success', title: 'Weekstaat ingediend', description: 'Je leerbedrijf ontvangt een melding ter goedkeuring.' });
+              }}
+            >
               <Icon.Check className="h-4 w-4" />
               Indienen
             </button>

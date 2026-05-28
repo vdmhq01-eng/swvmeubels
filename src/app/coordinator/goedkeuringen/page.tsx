@@ -3,6 +3,7 @@ import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Avatar } from '@/components/ui/Avatar';
 import { Icon } from '@/components/ui/Icon';
+import { ApprovalActions } from '@/components/uren/ApprovalActions';
 import { currentCoordinator } from '@/lib/mock/users';
 import { pendingApprovals } from '@/lib/mock/timesheets';
 import { formatHours, weekRange } from '@/lib/utils';
@@ -51,16 +52,12 @@ export default function CoordinatorGoedkeuringenPage() {
                 ))}
               </div>
 
-              <div className="mt-5 flex flex-wrap items-center justify-end gap-2">
-                <button className="btn-secondary">
-                  Correctie vragen
-                </button>
-                <button className="btn-secondary">
-                  <Icon.X className="h-4 w-4" /> Afkeuren
-                </button>
-                <button className="btn-primary">
-                  <Icon.Check className="h-4 w-4" /> Goedkeuren
-                </button>
+              <div className="mt-5 flex justify-end">
+                <ApprovalActions
+                  timesheetId={p.timesheet.id}
+                  studentName={p.studentName}
+                  withReasonInput
+                />
               </div>
             </CardBody>
           </Card>

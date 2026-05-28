@@ -46,6 +46,7 @@ export const navigation: Record<Role, NavItem[]> = {
     { label: 'Berichten', href: '/student/berichten', icon: 'Bell', badge: '2' },
     { label: 'Kennisbank', href: '/student/kennisbank', icon: 'BookOpen' },
     { label: 'FAQ', href: '/student/faq', icon: 'BookOpen' },
+    { label: 'Instellingen', href: '/student/instellingen', icon: 'Settings' },
   ],
   COORDINATOR: [
     { label: 'Dashboard', href: '/coordinator', icon: 'Home' },
@@ -61,6 +62,7 @@ export const navigation: Record<Role, NavItem[]> = {
     { label: 'Rapportages', href: '/coordinator/rapportages', icon: 'Activity' },
     { label: 'Kennisbank', href: '/coordinator/kennisbank', icon: 'BookOpen' },
     { label: 'FAQ beheer', href: '/coordinator/faq', icon: 'BookOpen' },
+    { label: 'Instellingen', href: '/coordinator/instellingen', icon: 'Settings' },
   ],
   COMPANY: [
     { label: 'Dashboard', href: '/lidbedrijf', icon: 'Home' },
@@ -72,6 +74,7 @@ export const navigation: Record<Role, NavItem[]> = {
     { label: 'Contracten', href: '/lidbedrijf/contracten', icon: 'Doc' },
     { label: 'Documenten', href: '/lidbedrijf/documenten', icon: 'Doc' },
     { label: 'Coördinator', href: '/lidbedrijf/coordinator', icon: 'User' },
+    { label: 'Instellingen', href: '/lidbedrijf/instellingen', icon: 'Settings' },
   ],
   ADMIN: [
     { label: 'Dashboard', href: '/admin', icon: 'Home' },
@@ -87,6 +90,7 @@ export const navigation: Record<Role, NavItem[]> = {
     { label: 'Documentbeheer', href: '/admin/documenten', icon: 'Doc' },
     { label: 'FAQ beheer', href: '/admin/faq', icon: 'BookOpen' },
     { label: 'Kennisbank', href: '/admin/kennisbank', icon: 'BookOpen' },
+    { label: 'Instellingen', href: '/admin/instellingen', icon: 'Settings' },
   ],
 };
 
