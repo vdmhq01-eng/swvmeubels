@@ -3,20 +3,35 @@ import { PortalShell } from '@/components/portal/PortalShell';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Avatar } from '@/components/ui/Avatar';
 import { Icon } from '@/components/ui/Icon';
-import { currentStudent } from '@/lib/mock/users';
-import { students } from '@/lib/mock/students';
-import { companies } from '@/lib/mock/companies';
+import { getDemoSession } from '@/lib/data/session';
+import { db } from '@/lib/db';
 
-export default function StudentLeerbedrijfPage() {
-  const s = students[0];
-  const company = companies.find((c) => c.id === s.companyId)!;
+export const dynamic = 'force-dynamic';
+
+export default async function StudentLeerbedrijfPage() {
+  const ctx = getDemoSession('STUDENT');
+  const s = await db.student.findUnique({
+    where: { id: ctx.studentId! },
+    include: {
+      user: true,
+      company: {
+        include: {
+          region: true,
+          contacts: { include: { user: true }, where: { primary: true }, take: 1 },
+        },
+      },
+    },
+  });
+  if (!s) return null;
+  const contact = s.company.contacts[0];
+
   return (
     <PortalShell
       role="STUDENT"
       activeHref="/student/leerbedrijf"
-      userName={currentStudent.name}
+      userName={s.user.name}
       userSubtitle="Student"
-      greeting={{ title: 'Mijn leerbedrijf', subtitle: company.name }}
+      greeting={{ title: 'Mijn leerbedrijf', subtitle: s.company.name }}
     >
       <Card>
         <CardBody>
@@ -26,8 +41,8 @@ export default function StudentLeerbedrijfPage() {
                 <Icon.Briefcase className="h-6 w-6" />
               </div>
               <div>
-                <h2 className="font-display text-2xl font-semibold text-ink-900">{company.name}</h2>
-                <p className="text-sm text-ink-500">Regio {company.region} · CBM-lid</p>
+                <h2 className="font-display text-2xl font-semibold text-ink-900">{s.company.name}</h2>
+                <p className="text-sm text-ink-500">Regio {s.company.region.name} · {s.company.membership}-lid</p>
               </div>
             </div>
             <Link href="/student/berichten" className="btn-primary">
@@ -42,18 +57,23 @@ export default function StudentLeerbedrijfPage() {
         <Card>
           <CardHeader title="Praktijkopleider" subtitle="Jouw eerste aanspreekpunt" />
           <CardBody>
-            <div className="flex items-center gap-3">
-              <Avatar name={company.contactName} tone="wood" />
-              <div>
-                <div className="text-sm font-medium text-ink-900">{company.contactName}</div>
-                <div className="text-xs text-ink-500">Praktijkopleider</div>
-              </div>
-            </div>
-            <dl className="mt-4 space-y-2 text-sm">
-              <Row icon={<Icon.Bell className="h-4 w-4 text-ink-500" />} label="E-mail" value={company.contactEmail} />
-              <Row icon={<Icon.Clock className="h-4 w-4 text-ink-500" />} label="Telefoon" value={company.contactPhone} />
-              <Row icon={<Icon.Briefcase className="h-4 w-4 text-ink-500" />} label="Regio" value={company.region} />
-            </dl>
+            {contact ? (
+              <>
+                <div className="flex items-center gap-3">
+                  <Avatar name={contact.user.name} tone="wood" />
+                  <div>
+                    <div className="text-sm font-medium text-ink-900">{contact.user.name}</div>
+                    <div className="text-xs text-ink-500">{contact.role}</div>
+                  </div>
+                </div>
+                <dl className="mt-4 space-y-2 text-sm">
+                  <RowDef icon={<Icon.Bell className="h-4 w-4 text-ink-500" />} label="E-mail" value={contact.user.email} />
+                  <RowDef icon={<Icon.Briefcase className="h-4 w-4 text-ink-500" />} label="Regio" value={s.company.region.name} />
+                </dl>
+              </>
+            ) : (
+              <div className="text-sm text-ink-500">Geen contactpersoon bekend.</div>
+            )}
           </CardBody>
         </Card>
 
@@ -73,9 +93,7 @@ export default function StudentLeerbedrijfPage() {
                   }`}
                 >
                   <div className="font-medium">{d}</div>
-                  <div className="mt-1 text-[11px] opacity-80">
-                    {i === 2 ? 'School' : i < 5 ? 'Werk' : '-'}
-                  </div>
+                  <div className="mt-1 text-[11px] opacity-80">{i === 2 ? 'School' : i < 5 ? 'Werk' : '-'}</div>
                 </li>
               ))}
             </ul>
@@ -91,7 +109,7 @@ export default function StudentLeerbedrijfPage() {
   );
 }
 
-function Row({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+function RowDef({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
     <div className="flex items-center gap-3">
       {icon}

@@ -4,16 +4,19 @@ import { Badge } from '@/components/ui/Badge';
 import { Toolbar, FilterChip } from '@/components/ui/Toolbar';
 import { Icon } from '@/components/ui/Icon';
 import { currentAdmin } from '@/lib/mock/users';
-import { companies } from '@/lib/mock/companies';
+import { listCompanies } from '@/lib/data/companies';
 
-export default function AdminLidbedrijvenPage() {
+export const dynamic = 'force-dynamic';
+
+export default async function AdminLidbedrijvenPage() {
+  const companies = await listCompanies();
   return (
     <PortalShell
       role="ADMIN"
       activeHref="/admin/lidbedrijven"
       userName={currentAdmin.name}
       userSubtitle="Admin"
-      greeting={{ title: 'Lidbedrijven', subtitle: 'Alle bedrijven, contactpersonen en lidmaatschappen.' }}
+      greeting={{ title: 'Lidbedrijven', subtitle: `${companies.length} bedrijven in totaal` }}
     >
       <Card>
         <CardBody>
@@ -41,29 +44,26 @@ export default function AdminLidbedrijvenPage() {
                   <th className="table-head">Regio</th>
                   <th className="table-head text-right">Studenten</th>
                   <th className="table-head">Lidmaatschap</th>
-                  <th className="table-head"></th>
                 </tr>
               </thead>
               <tbody>
-                {companies.map((c) => (
-                  <tr key={c.id} className="table-row">
-                    <td className="table-cell">
-                      <div className="font-medium text-ink-900">{c.name}</div>
-                      <div className="text-xs text-ink-500">{c.contactEmail}</div>
-                    </td>
-                    <td className="table-cell">{c.contactName}</td>
-                    <td className="table-cell">{c.region}</td>
-                    <td className="table-cell text-right font-semibold">{c.activeStudents}</td>
-                    <td className="table-cell">
-                      <Badge variant={c.membership === 'CBM' ? 'success' : 'neutral'}>{c.membership}</Badge>
-                    </td>
-                    <td className="table-cell text-right">
-                      <button className="btn-ghost">
-                        <Icon.ArrowRight className="h-4 w-4" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                {companies.map((c) => {
+                  const contact = c.contacts[0];
+                  return (
+                    <tr key={c.id} className="table-row">
+                      <td className="table-cell">
+                        <div className="font-medium text-ink-900">{c.name}</div>
+                        <div className="text-xs text-ink-500">{contact?.user.email ?? '-'}</div>
+                      </td>
+                      <td className="table-cell">{contact?.user.name ?? '-'}</td>
+                      <td className="table-cell">{c.region.name}</td>
+                      <td className="table-cell text-right font-semibold">{c._count.students}</td>
+                      <td className="table-cell">
+                        <Badge variant={c.membership === 'CBM' ? 'success' : 'neutral'}>{c.membership}</Badge>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

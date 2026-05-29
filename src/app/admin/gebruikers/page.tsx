@@ -5,8 +5,10 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Toolbar, FilterChip } from '@/components/ui/Toolbar';
 import { Icon } from '@/components/ui/Icon';
 import { currentAdmin } from '@/lib/mock/users';
-import { allUsers } from '@/lib/mock/admin';
+import { listAllUsers } from '@/lib/data/admin';
 import { formatDate } from '@/lib/utils';
+
+export const dynamic = 'force-dynamic';
 
 const roleLabel: Record<string, string> = {
   ADMIN: 'Admin',
@@ -15,14 +17,15 @@ const roleLabel: Record<string, string> = {
   STUDENT: 'Student',
 };
 
-export default function AdminGebruikersPage() {
+export default async function AdminGebruikersPage() {
+  const users = await listAllUsers();
   return (
     <PortalShell
       role="ADMIN"
       activeHref="/admin/gebruikers"
       userName={currentAdmin.name}
       userSubtitle="Admin"
-      greeting={{ title: 'Gebruikersbeheer', subtitle: `${allUsers.length} accounts in het systeem` }}
+      greeting={{ title: 'Gebruikersbeheer', subtitle: `${users.length} accounts in het systeem` }}
     >
       <Card>
         <CardBody>
@@ -51,13 +54,13 @@ export default function AdminGebruikersPage() {
                   <th className="table-head">Gebruiker</th>
                   <th className="table-head">Rol</th>
                   <th className="table-head">2FA</th>
+                  <th className="table-head">Regio</th>
                   <th className="table-head">Laatste login</th>
                   <th className="table-head">Aangemaakt</th>
-                  <th className="table-head"></th>
                 </tr>
               </thead>
               <tbody>
-                {allUsers.map((u) => (
+                {users.map((u) => (
                   <tr key={u.id} className="table-row">
                     <td className="table-cell">
                       <div className="flex items-center gap-3">
@@ -80,15 +83,9 @@ export default function AdminGebruikersPage() {
                         <Badge variant="neutral">Optioneel</Badge>
                       )}
                     </td>
-                    <td className="table-cell text-xs text-ink-500">
-                      {u.lastLoginAt ? formatDate(u.lastLoginAt) : '-'}
-                    </td>
+                    <td className="table-cell text-xs text-ink-500">{u.region?.name ?? '-'}</td>
+                    <td className="table-cell text-xs text-ink-500">{u.lastLoginAt ? formatDate(u.lastLoginAt) : '-'}</td>
                     <td className="table-cell text-xs text-ink-500">{formatDate(u.createdAt)}</td>
-                    <td className="table-cell text-right">
-                      <button className="btn-ghost">
-                        <Icon.Settings className="h-4 w-4" />
-                      </button>
-                    </td>
                   </tr>
                 ))}
               </tbody>

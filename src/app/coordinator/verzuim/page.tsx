@@ -3,50 +3,61 @@ import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Avatar } from '@/components/ui/Avatar';
 import { Icon } from '@/components/ui/Icon';
-import { currentCoordinator } from '@/lib/mock/users';
-import { absences } from '@/lib/mock/misc';
-import { students } from '@/lib/mock/students';
+import { getDemoSession } from '@/lib/data/session';
+import { listAbsences } from '@/lib/data/compliance';
+import { db } from '@/lib/db';
 import { formatDate } from '@/lib/utils';
 
-export default function CoordinatorVerzuimPage() {
+export const dynamic = 'force-dynamic';
+
+export default async function CoordinatorVerzuimPage() {
+  const ctx = getDemoSession('COORDINATOR');
+  const [absences, coordinator] = await Promise.all([
+    listAbsences(ctx),
+    db.coordinator.findUnique({ where: { id: ctx.coordinatorId! }, include: { user: true, region: true } }),
+  ]);
+  const open = absences.filter((a) => !a.closedAt).length;
+  const gesloten = absences.length - open;
+
   return (
     <PortalShell
       role="COORDINATOR"
       activeHref="/coordinator/verzuim"
-      userName={currentCoordinator.name}
-      userSubtitle="Coördinator regio Noord"
+      userName={coordinator?.user.name ?? 'Coördinator'}
+      userSubtitle={`Coördinator regio ${coordinator?.region.name ?? ''}`}
       greeting={{ title: 'Ziekteverzuim', subtitle: 'Open en gesloten meldingen in jouw regio.' }}
     >
       <div className="grid grid-cols-1 gap-5 md:grid-cols-4">
-        <KPI tone="rose" label="Open meldingen" value={absences.filter((a) => a.status === 'OPEN').length.toString()} icon={<Icon.Heart className="h-5 w-5" />} />
+        <KPI tone="rose" label="Open meldingen" value={`${open}`} icon={<Icon.Heart className="h-5 w-5" />} />
         <KPI tone="amber" label="Gemiddelde duur" value="3,2 dagen" icon={<Icon.Clock className="h-5 w-5" />} />
-        <KPI tone="wood" label="Deze maand" value="8" icon={<Icon.Activity className="h-5 w-5" />} />
-        <KPI tone="green" label="Beter gemeld" value="14" icon={<Icon.CheckCircle className="h-5 w-5" />} />
+        <KPI tone="wood" label="Totaal" value={`${absences.length}`} icon={<Icon.Activity className="h-5 w-5" />} />
+        <KPI tone="green" label="Gesloten" value={`${gesloten}`} icon={<Icon.CheckCircle className="h-5 w-5" />} />
       </div>
 
       <Card className="mt-6">
         <CardHeader title="Alle meldingen" subtitle="Sorteer op datum" />
         <CardBody>
-          <div className="overflow-x-auto rounded-xl border border-bone-200">
-            <table className="w-full min-w-[640px] border-collapse text-sm">
-              <thead>
-                <tr>
-                  <th className="table-head">Student</th>
-                  <th className="table-head">Type</th>
-                  <th className="table-head">Periode</th>
-                  <th className="table-head">Gemeld op</th>
-                  <th className="table-head">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {absences.map((a) => {
-                  const s = students.find((x) => x.id === a.studentId);
-                  return (
+          {absences.length === 0 ? (
+            <div className="text-sm text-ink-500">Geen verzuim meldingen.</div>
+          ) : (
+            <div className="overflow-x-auto rounded-xl border border-bone-200">
+              <table className="w-full min-w-[640px] border-collapse text-sm">
+                <thead>
+                  <tr>
+                    <th className="table-head">Student</th>
+                    <th className="table-head">Type</th>
+                    <th className="table-head">Periode</th>
+                    <th className="table-head">Gemeld op</th>
+                    <th className="table-head">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {absences.map((a) => (
                     <tr key={a.id} className="table-row">
                       <td className="table-cell">
                         <div className="flex items-center gap-3">
-                          <Avatar name={s?.name ?? '??'} size="sm" tone="wood" />
-                          <span className="font-medium text-ink-900">{s?.name ?? '-'}</span>
+                          <Avatar name={a.student.user.name} size="sm" tone="wood" />
+                          <span className="font-medium text-ink-900">{a.student.user.name}</span>
                         </div>
                       </td>
                       <td className="table-cell">{a.type === 'ZIEKTE' ? 'Ziekte' : 'Verlof'}</td>
@@ -55,16 +66,16 @@ export default function CoordinatorVerzuimPage() {
                       </td>
                       <td className="table-cell text-ink-500">{formatDate(a.reportedAt)}</td>
                       <td className="table-cell">
-                        <Badge variant={a.status === 'OPEN' ? 'warning' : 'success'}>
-                          {a.status === 'OPEN' ? 'Open' : 'Gesloten'}
+                        <Badge variant={a.closedAt ? 'success' : 'warning'}>
+                          {a.closedAt ? 'Gesloten' : 'Open'}
                         </Badge>
                       </td>
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </CardBody>
       </Card>
     </PortalShell>

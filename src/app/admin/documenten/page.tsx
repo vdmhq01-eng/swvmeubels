@@ -4,11 +4,17 @@ import { Badge } from '@/components/ui/Badge';
 import { Toolbar, FilterChip } from '@/components/ui/Toolbar';
 import { Icon } from '@/components/ui/Icon';
 import { currentAdmin } from '@/lib/mock/users';
-import { documents } from '@/lib/mock/misc';
-import { students } from '@/lib/mock/students';
+import { listDocuments } from '@/lib/data/compliance';
 import { formatDate } from '@/lib/utils';
 
-export default function AdminDocumentenPage() {
+export const dynamic = 'force-dynamic';
+
+export default async function AdminDocumentenPage() {
+  const documents = await listDocuments({});
+  const now = Date.now();
+  const soon = documents.filter((d) => d.retentionUntil.getTime() - now < 30 * 86400_000 && d.retentionUntil.getTime() > now).length;
+  const expired = documents.filter((d) => d.retentionUntil.getTime() <= now).length;
+
   return (
     <PortalShell
       role="ADMIN"
@@ -18,10 +24,10 @@ export default function AdminDocumentenPage() {
       greeting={{ title: 'Documentbeheer', subtitle: 'AVG-proof opslag, bewaartermijnen en signaleringen.' }}
     >
       <div className="grid grid-cols-1 gap-5 md:grid-cols-4">
-        <KPI tone="wood" label="Documenten" value={documents.length.toString()} />
-        <KPI tone="green" label="Versleuteld" value={`${documents.filter((d) => d.encrypted).length}/${documents.length}`} />
-        <KPI tone="amber" label="< 30d retentie" value="1" />
-        <KPI tone="rose" label="Verlopen" value="0" />
+        <KPI tone="wood" label="Documenten" value={`${documents.length}`} />
+        <KPI tone="green" label="Versleuteld" value={`${documents.length}/${documents.length}`} />
+        <KPI tone="amber" label="< 30d retentie" value={`${soon}`} />
+        <KPI tone="rose" label="Verlopen" value={`${expired}`} />
       </div>
 
       <Card className="mt-6">
@@ -52,31 +58,24 @@ export default function AdminDocumentenPage() {
                 </tr>
               </thead>
               <tbody>
-                {documents.map((d) => {
-                  const s = students.find((x) => x.id === d.studentId);
-                  return (
-                    <tr key={d.id} className="table-row">
-                      <td className="table-cell">
-                        <div className="flex items-center gap-2">
-                          <Icon.Doc className="h-4 w-4 text-wood-500" />
-                          <span className="font-medium text-ink-900">{d.fileName}</span>
-                        </div>
-                        <div className="text-xs text-ink-500">{(d.sizeBytes / 1024).toFixed(0)} KB</div>
-                      </td>
-                      <td className="table-cell">
-                        <Badge variant="wood">{d.category}</Badge>
-                      </td>
-                      <td className="table-cell">{s?.name ?? '-'}</td>
-                      <td className="table-cell text-xs text-ink-500">{formatDate(d.uploadedAt)}</td>
-                      <td className="table-cell">{formatDate(d.retentionUntil)}</td>
-                      <td className="table-cell">
-                        <Badge variant="info">
-                          <Icon.Lock className="h-3 w-3" /> AES-256
-                        </Badge>
-                      </td>
-                    </tr>
-                  );
-                })}
+                {documents.map((d) => (
+                  <tr key={d.id} className="table-row">
+                    <td className="table-cell">
+                      <div className="flex items-center gap-2">
+                        <Icon.Doc className="h-4 w-4 text-wood-500" />
+                        <span className="font-medium text-ink-900">{d.fileName}</span>
+                      </div>
+                      <div className="text-xs text-ink-500">{(d.sizeBytes / 1024).toFixed(0)} KB</div>
+                    </td>
+                    <td className="table-cell"><Badge variant="wood">{d.category}</Badge></td>
+                    <td className="table-cell">{d.student?.user.name ?? '-'}</td>
+                    <td className="table-cell text-xs text-ink-500">{formatDate(d.uploadedAt)}</td>
+                    <td className="table-cell">{formatDate(d.retentionUntil)}</td>
+                    <td className="table-cell">
+                      <Badge variant="info"><Icon.Lock className="h-3 w-3" /> AES-256</Badge>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>

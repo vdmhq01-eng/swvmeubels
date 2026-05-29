@@ -4,7 +4,9 @@ import { Badge } from '@/components/ui/Badge';
 import { Toolbar, FilterChip } from '@/components/ui/Toolbar';
 import { Icon } from '@/components/ui/Icon';
 import { currentAdmin } from '@/lib/mock/users';
-import { recentSyncLogs } from '@/lib/mock/integrations';
+import { listSyncLogs } from '@/lib/data/admin';
+
+export const dynamic = 'force-dynamic';
 
 const statusVariant = {
   OK: 'success' as const,
@@ -12,17 +14,14 @@ const statusVariant = {
   GENEGEERD: 'neutral' as const,
 };
 
-function formatDateTime(value: string) {
+function formatDateTime(value: Date) {
   return new Intl.DateTimeFormat('nl-NL', {
-    day: 'numeric',
-    month: 'short',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  }).format(new Date(value));
+    day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', second: '2-digit',
+  }).format(value);
 }
 
-export default function AdminSyncLogsPage() {
+export default async function AdminSyncLogsPage() {
+  const logs = await listSyncLogs(100);
   return (
     <PortalShell
       role="ADMIN"
@@ -41,15 +40,14 @@ export default function AdminSyncLogsPage() {
               <FilterChip label="Fouten" />
             </Toolbar>
             <button className="btn-secondary">
-              <Icon.Refresh className="h-4 w-4" />
-              Nu vernieuwen
+              <Icon.Refresh className="h-4 w-4" /> Nu vernieuwen
             </button>
           </div>
         </CardBody>
       </Card>
 
       <Card className="mt-6">
-        <CardHeader title="Activiteit" subtitle={`${recentSyncLogs.length} regels`} />
+        <CardHeader title="Activiteit" subtitle={`${logs.length} regels`} />
         <CardBody>
           <div className="overflow-x-auto rounded-xl border border-bone-200">
             <table className="w-full min-w-[840px] border-collapse text-sm">
@@ -66,19 +64,15 @@ export default function AdminSyncLogsPage() {
                 </tr>
               </thead>
               <tbody>
-                {recentSyncLogs.map((l) => (
+                {logs.map((l) => (
                   <tr key={l.id} className="table-row">
                     <td className="table-cell text-xs text-ink-500">{formatDateTime(l.startedAt)}</td>
                     <td className="table-cell">{l.integration === 'EXACT_SYNERGY' ? 'Exact' : 'Cleverdesk'}</td>
-                    <td className="table-cell">
-                      <Badge variant="neutral">{l.direction === 'IN' ? '← in' : 'uit →'}</Badge>
-                    </td>
-                    <td className="table-cell">{l.object}</td>
+                    <td className="table-cell"><Badge variant="neutral">{l.direction === 'IN' ? '← in' : 'uit →'}</Badge></td>
+                    <td className="table-cell">{l.objectType}</td>
                     <td className="table-cell font-mono text-xs text-ink-500">{l.externalId ?? '-'}</td>
                     <td className="table-cell text-right">{l.durationMs} ms</td>
-                    <td className="table-cell">
-                      <Badge variant={statusVariant[l.status]}>{l.status}</Badge>
-                    </td>
+                    <td className="table-cell"><Badge variant={statusVariant[l.status]}>{l.status}</Badge></td>
                     <td className="table-cell text-xs text-ink-500">{l.message ?? '-'}</td>
                   </tr>
                 ))}

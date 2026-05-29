@@ -4,10 +4,13 @@ import { Badge } from '@/components/ui/Badge';
 import { Toolbar, FilterChip } from '@/components/ui/Toolbar';
 import { Icon } from '@/components/ui/Icon';
 import { currentAdmin } from '@/lib/mock/users';
-import { knowledgeArticles } from '@/lib/mock/faq';
+import { listAllKnowledge } from '@/lib/data/content';
 import { formatDate } from '@/lib/utils';
 
-export default function AdminKennisbankPage() {
+export const dynamic = 'force-dynamic';
+
+export default async function AdminKennisbankPage() {
+  const articles = await listAllKnowledge();
   return (
     <PortalShell
       role="ADMIN"
@@ -47,7 +50,7 @@ export default function AdminKennisbankPage() {
                 </tr>
               </thead>
               <tbody>
-                {knowledgeArticles.map((a) => (
+                {articles.map((a) => (
                   <tr key={a.id} className="table-row">
                     <td className="table-cell font-medium text-ink-900">{a.title}</td>
                     <td className="table-cell"><Badge variant="wood">{a.category}</Badge></td>
@@ -65,7 +68,7 @@ export default function AdminKennisbankPage() {
                         {a.status === 'GEPUBLICEERD' ? 'Gepubliceerd' : 'Concept'}
                       </Badge>
                     </td>
-                    <td className="table-cell text-xs text-ink-500">{formatDate(a.updatedAt)} · {a.updatedByName}</td>
+                    <td className="table-cell text-xs text-ink-500">{formatDate(a.updatedAt)} · {a.updatedBy}</td>
                   </tr>
                 ))}
               </tbody>

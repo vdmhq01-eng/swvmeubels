@@ -2,18 +2,26 @@ import { PortalShell } from '@/components/portal/PortalShell';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Icon } from '@/components/ui/Icon';
-import { currentStudent } from '@/lib/mock/users';
-import { absences } from '@/lib/mock/misc';
+import { getDemoSession } from '@/lib/data/session';
+import { db } from '@/lib/db';
 import { formatDate } from '@/lib/utils';
 
-export default function StudentVerzuimPage() {
-  const myAbs = absences.filter((a) => a.studentId === 'stu-001' || a.studentId === 'stu-006');
-  const open = myAbs.filter((a) => a.status === 'OPEN').length;
+export const dynamic = 'force-dynamic';
+
+export default async function StudentVerzuimPage() {
+  const ctx = getDemoSession('STUDENT');
+  const [s, absences] = await Promise.all([
+    db.student.findUnique({ where: { id: ctx.studentId! }, include: { user: true } }),
+    db.absence.findMany({ where: { studentId: ctx.studentId! }, orderBy: { startDate: 'desc' } }),
+  ]);
+  if (!s) return null;
+  const open = absences.filter((a) => !a.closedAt).length;
+
   return (
     <PortalShell
       role="STUDENT"
       activeHref="/student/verzuim"
-      userName={currentStudent.name}
+      userName={s.user.name}
       userSubtitle="Student"
       greeting={{ title: 'Verzuim', subtitle: 'Ziekmelden, betermelden en historie.' }}
     >
@@ -69,28 +77,32 @@ export default function StudentVerzuimPage() {
       <Card className="mt-6">
         <CardHeader title="Historie" />
         <CardBody>
-          <ul className="divide-y divide-bone-100">
-            {myAbs.map((a) => (
-              <li key={a.id} className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
-                <div className="flex items-center gap-3">
-                  <div className="grid h-9 w-9 place-items-center rounded-xl bg-rose-50 text-rose-700 ring-1 ring-rose-100">
-                    <Icon.Heart className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <div className="text-sm font-medium text-ink-900">
-                      {a.type === 'ZIEKTE' ? 'Ziekmelding' : 'Verlof'}
+          {absences.length === 0 ? (
+            <div className="text-sm text-ink-500">Geen verzuim meldingen.</div>
+          ) : (
+            <ul className="divide-y divide-bone-100">
+              {absences.map((a) => (
+                <li key={a.id} className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
+                  <div className="flex items-center gap-3">
+                    <div className="grid h-9 w-9 place-items-center rounded-xl bg-rose-50 text-rose-700 ring-1 ring-rose-100">
+                      <Icon.Heart className="h-4 w-4" />
                     </div>
-                    <div className="text-xs text-ink-500">
-                      {formatDate(a.startDate)}{a.endDate ? ` – ${formatDate(a.endDate)}` : ' – open'}
+                    <div>
+                      <div className="text-sm font-medium text-ink-900">
+                        {a.type === 'ZIEKTE' ? 'Ziekmelding' : 'Verlof'}
+                      </div>
+                      <div className="text-xs text-ink-500">
+                        {formatDate(a.startDate)}{a.endDate ? ` – ${formatDate(a.endDate)}` : ' – open'}
+                      </div>
                     </div>
                   </div>
-                </div>
-                <Badge variant={a.status === 'OPEN' ? 'warning' : 'success'}>
-                  {a.status === 'OPEN' ? 'Open' : 'Gesloten'}
-                </Badge>
-              </li>
-            ))}
-          </ul>
+                  <Badge variant={a.closedAt ? 'success' : 'warning'}>
+                    {a.closedAt ? 'Gesloten' : 'Open'}
+                  </Badge>
+                </li>
+              ))}
+            </ul>
+          )}
         </CardBody>
       </Card>
     </PortalShell>

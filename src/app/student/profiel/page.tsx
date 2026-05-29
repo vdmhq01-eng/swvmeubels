@@ -3,22 +3,33 @@ import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Avatar } from '@/components/ui/Avatar';
 import { Icon } from '@/components/ui/Icon';
-import { currentStudent } from '@/lib/mock/users';
-import { students } from '@/lib/mock/students';
-import { programs } from '@/lib/mock/programs';
-import { regions } from '@/lib/mock/regions';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { getDemoSession } from '@/lib/data/session';
+import { db } from '@/lib/db';
 import { formatDate } from '@/lib/utils';
 
-export default function StudentProfielPage() {
-  const s = students[0];
-  const program = programs.find((p) => p.id === s.programId)!;
-  const region = regions.find((r) => r.id === s.regionId)!;
+export const dynamic = 'force-dynamic';
+
+export default async function StudentProfielPage() {
+  const ctx = getDemoSession('STUDENT');
+  const s = await db.student.findUnique({
+    where: { id: ctx.studentId! },
+    include: { user: true, program: true, region: true },
+  });
+
+  if (!s) {
+    return (
+      <PortalShell role="STUDENT" activeHref="/student/profiel" userName="Demo" userSubtitle="Student">
+        <EmptyState icon={<Icon.User className="h-5 w-5" />} title="Geen student-profiel gevonden" />
+      </PortalShell>
+    );
+  }
 
   return (
     <PortalShell
       role="STUDENT"
       activeHref="/student/profiel"
-      userName={currentStudent.name}
+      userName={s.user.name}
       userSubtitle="Student"
       greeting={{ title: 'Mijn gegevens', subtitle: 'Persoonlijke gegevens en contactinformatie.' }}
     >
@@ -26,22 +37,22 @@ export default function StudentProfielPage() {
         <Card className="lg:col-span-2">
           <CardBody>
             <div className="flex items-start gap-4">
-              <Avatar name={s.name} size="lg" tone="wood" />
+              <Avatar name={s.user.name} size="lg" tone="wood" />
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h2 className="font-display text-2xl font-semibold text-ink-900">{s.name}</h2>
+                  <h2 className="font-display text-2xl font-semibold text-ink-900">{s.user.name}</h2>
                   <Badge variant="success">{s.signal}</Badge>
                 </div>
                 <p className="mt-1 text-sm text-ink-600">
-                  {program.name} {program.level} · jaar {s.yearOfStudy}
+                  {s.program.name} {s.program.level.replace('BBL_', 'BBL ')} · jaar {s.yearOfStudy}
                 </p>
                 <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
-                  <Field label="E-mail" value={s.email} />
-                  <Field label="Telefoon" value={s.phone} />
-                  <Field label="Regio" value={region.name} />
+                  <Field label="E-mail" value={s.user.email} />
+                  <Field label="Regio" value={s.region.name} />
                   <Field label="Startdatum" value={formatDate(s.startDate)} />
                   <Field label="Verwacht diploma" value={s.expectedDiplomaDate ? formatDate(s.expectedDiplomaDate) : '-'} />
                   <Field label="Externe ID (Exact)" value={s.externalId} />
+                  <Field label="Cleverdesk ID" value={s.cleverdeskId ?? '-'} />
                 </div>
               </div>
             </div>
@@ -62,29 +73,16 @@ export default function StudentProfielPage() {
       </div>
 
       <Card className="mt-6">
-        <CardHeader
-          title="Mijn rechten (AVG)"
-          subtitle="Inzage, correctie en bezwaar"
-          action={
-            <button className="btn-secondary">
-              <Icon.Doc className="h-4 w-4" /> Vraag dataexport
-            </button>
-          }
-        />
+        <CardHeader title="Mijn rechten (AVG)" subtitle="Inzage, correctie en bezwaar" action={
+          <button className="btn-secondary">
+            <Icon.Doc className="h-4 w-4" /> Vraag dataexport
+          </button>
+        } />
         <CardBody>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-            <RightCard
-              title="Inzage"
-              body="Vraag een overzicht van alle persoonsgegevens die SWV Meubel over jou bewaart."
-            />
-            <RightCard
-              title="Correctie"
-              body="Klopt iets niet? Vraag een correctie aan via je coördinator of admin."
-            />
-            <RightCard
-              title="Bezwaar"
-              body="Bezwaar maken tegen verwerking? Neem contact op met de privacy officer."
-            />
+            <RightCard title="Inzage" body="Vraag een overzicht van alle persoonsgegevens die SWV Meubel over jou bewaart." />
+            <RightCard title="Correctie" body="Klopt iets niet? Vraag een correctie aan via je coördinator of admin." />
+            <RightCard title="Bezwaar" body="Bezwaar maken tegen verwerking? Neem contact op met de privacy officer." />
           </div>
         </CardBody>
       </Card>

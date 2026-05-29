@@ -4,10 +4,12 @@ import { Badge } from '@/components/ui/Badge';
 import { Toolbar, FilterChip } from '@/components/ui/Toolbar';
 import { Icon } from '@/components/ui/Icon';
 import { currentAdmin } from '@/lib/mock/users';
-import { faqItems } from '@/lib/mock/faq';
-import { formatDate } from '@/lib/utils';
+import { listAllFaq } from '@/lib/data/content';
 
-export default function AdminFaqPage() {
+export const dynamic = 'force-dynamic';
+
+export default async function AdminFaqPage() {
+  const faqItems = await listAllFaq();
   return (
     <PortalShell
       role="ADMIN"
@@ -43,7 +45,7 @@ export default function AdminFaqPage() {
                   <th className="table-head">Categorie</th>
                   <th className="table-head">Rollen</th>
                   <th className="table-head">Status</th>
-                  <th className="table-head">Bijgewerkt</th>
+                  <th className="table-head">Bijgewerkt door</th>
                 </tr>
               </thead>
               <tbody>
@@ -58,7 +60,7 @@ export default function AdminFaqPage() {
                         {f.status === 'GEPUBLICEERD' ? 'Gepubliceerd' : f.status === 'CONCEPT' ? 'Concept' : 'Gearchiveerd'}
                       </Badge>
                     </td>
-                    <td className="table-cell text-xs text-ink-500">{formatDate(f.updatedAt)} · {f.updatedByName}</td>
+                    <td className="table-cell text-xs text-ink-500">{f.updatedBy}</td>
                   </tr>
                 ))}
               </tbody>

@@ -3,29 +3,41 @@ import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Avatar } from '@/components/ui/Avatar';
 import { Icon } from '@/components/ui/Icon';
-import { currentCoordinator } from '@/lib/mock/users';
-import { students } from '@/lib/mock/students';
-import { programs } from '@/lib/mock/programs';
+import { getDemoSession } from '@/lib/data/session';
+import { db } from '@/lib/db';
 import { formatDate } from '@/lib/utils';
 
-export default function CoordinatorDiplomaPage() {
-  const kandidaten = students.filter((s) => s.yearOfStudy === 3);
+export const dynamic = 'force-dynamic';
+
+export default async function CoordinatorDiplomaPage() {
+  const ctx = getDemoSession('COORDINATOR');
+  const [kandidaten, coordinator] = await Promise.all([
+    db.student.findMany({
+      where: { coordinatorId: ctx.coordinatorId!, yearOfStudy: { gte: 3 } },
+      include: { user: true, program: true },
+      orderBy: { expectedDiplomaDate: 'asc' },
+    }),
+    db.coordinator.findUnique({ where: { id: ctx.coordinatorId! }, include: { user: true, region: true } }),
+  ]);
+  const goed = kandidaten.filter((k) => k.signal === 'Goed').length;
+  const aandacht = kandidaten.filter((k) => k.signal !== 'Goed').length;
+
   return (
     <PortalShell
       role="COORDINATOR"
       activeHref="/coordinator/diploma"
-      userName={currentCoordinator.name}
-      userSubtitle="Coördinator regio Noord"
+      userName={coordinator?.user.name ?? 'Coördinator'}
+      userSubtitle={`Coördinator regio ${coordinator?.region.name ?? ''}`}
       greeting={{ title: 'Diploma & uitstroom', subtitle: 'Kandidaten voor dit schooljaar.' }}
     >
       <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-        <KPI tone="wood" label="Diploma kandidaten" value={kandidaten.length.toString()} icon={<Icon.BookOpen className="h-5 w-5" />} />
-        <KPI tone="green" label="Klaar voor examen" value="9" icon={<Icon.CheckCircle className="h-5 w-5" />} />
-        <KPI tone="amber" label="Aandachtspunten" value="3" icon={<Icon.AlertTriangle className="h-5 w-5" />} />
+        <KPI tone="wood" label="Diploma kandidaten" value={`${kandidaten.length}`} icon={<Icon.BookOpen className="h-5 w-5" />} />
+        <KPI tone="green" label="Klaar voor examen" value={`${goed}`} icon={<Icon.CheckCircle className="h-5 w-5" />} />
+        <KPI tone="amber" label="Aandachtspunten" value={`${aandacht}`} icon={<Icon.AlertTriangle className="h-5 w-5" />} />
       </div>
 
       <Card className="mt-6">
-        <CardHeader title="Diploma kandidaten 2026" subtitle="Status per student" />
+        <CardHeader title="Diploma kandidaten" subtitle="Status per student" />
         <CardBody>
           <div className="overflow-x-auto rounded-xl border border-bone-200">
             <table className="w-full min-w-[640px] border-collapse text-sm">
@@ -35,35 +47,26 @@ export default function CoordinatorDiplomaPage() {
                   <th className="table-head">Opleiding</th>
                   <th className="table-head">Verwacht diploma</th>
                   <th className="table-head">Status</th>
-                  <th className="table-head"></th>
                 </tr>
               </thead>
               <tbody>
-                {kandidaten.map((s) => {
-                  const program = programs.find((p) => p.id === s.programId)!;
-                  return (
-                    <tr key={s.id} className="table-row">
-                      <td className="table-cell">
-                        <div className="flex items-center gap-3">
-                          <Avatar name={s.name} size="sm" tone="wood" />
-                          <span className="font-medium text-ink-900">{s.name}</span>
-                        </div>
-                      </td>
-                      <td className="table-cell">{program.name} {program.level}</td>
-                      <td className="table-cell">{s.expectedDiplomaDate ? formatDate(s.expectedDiplomaDate) : '-'}</td>
-                      <td className="table-cell">
-                        <Badge variant={s.signal === 'Goed' ? 'success' : s.signal === 'Aandacht' ? 'warning' : 'danger'}>
-                          {s.signal}
-                        </Badge>
-                      </td>
-                      <td className="table-cell text-right">
-                        <button className="btn-ghost">
-                          <Icon.ArrowRight className="h-4 w-4" />
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
+                {kandidaten.map((s) => (
+                  <tr key={s.id} className="table-row">
+                    <td className="table-cell">
+                      <div className="flex items-center gap-3">
+                        <Avatar name={s.user.name} size="sm" tone="wood" />
+                        <span className="font-medium text-ink-900">{s.user.name}</span>
+                      </div>
+                    </td>
+                    <td className="table-cell">{s.program.name} {s.program.level.replace('BBL_', 'BBL ')}</td>
+                    <td className="table-cell">{s.expectedDiplomaDate ? formatDate(s.expectedDiplomaDate) : '-'}</td>
+                    <td className="table-cell">
+                      <Badge variant={s.signal === 'Goed' ? 'success' : s.signal === 'Aandacht' ? 'warning' : 'danger'}>
+                        {s.signal}
+                      </Badge>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>

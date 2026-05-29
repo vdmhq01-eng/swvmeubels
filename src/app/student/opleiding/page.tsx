@@ -2,36 +2,44 @@ import { PortalShell } from '@/components/portal/PortalShell';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Icon } from '@/components/ui/Icon';
-import { currentStudent } from '@/lib/mock/users';
-import { students } from '@/lib/mock/students';
-import { programs } from '@/lib/mock/programs';
+import { getDemoSession } from '@/lib/data/session';
+import { db } from '@/lib/db';
+import { formatDate } from '@/lib/utils';
 
-export default function OpleidingPage() {
-  const s = students[0];
-  const program = programs.find((p) => p.id === s.programId)!;
+export const dynamic = 'force-dynamic';
+
+export default async function OpleidingPage() {
+  const ctx = getDemoSession('STUDENT');
+  const s = await db.student.findUnique({
+    where: { id: ctx.studentId! },
+    include: { user: true, program: true },
+  });
+  if (!s) return null;
+  const progress = Math.min(100, s.yearOfStudy * 25 + 15);
+
   return (
     <PortalShell
       role="STUDENT"
       activeHref="/student/opleiding"
-      userName={currentStudent.name}
+      userName={s.user.name}
       userSubtitle="Student"
-      greeting={{ title: 'Mijn opleiding', subtitle: `${program.name} ${program.level}` }}
+      greeting={{ title: 'Mijn opleiding', subtitle: `${s.program.name} ${s.program.level.replace('BBL_', 'BBL ')}` }}
     >
       <Card>
         <CardBody>
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
               <div className="text-xs font-medium uppercase tracking-wider text-ink-500">Voortgang</div>
-              <div className="mt-1 font-display text-3xl font-semibold text-ink-900">65%</div>
-              <div className="mt-1 text-sm text-ink-500">Je bent halverwege niveau 3.</div>
+              <div className="mt-1 font-display text-3xl font-semibold text-ink-900">{progress}%</div>
+              <div className="mt-1 text-sm text-ink-500">Jaar {s.yearOfStudy} van je opleiding.</div>
             </div>
             <div className="flex gap-2">
               <Badge variant="info">Jaar {s.yearOfStudy}</Badge>
-              <Badge variant="success">Goed</Badge>
+              <Badge variant="success">{s.signal}</Badge>
             </div>
           </div>
           <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-bone-100">
-            <div className="h-full rounded-full bg-wood-500" style={{ width: '65%' }} />
+            <div className="h-full rounded-full bg-wood-500" style={{ width: `${progress}%` }} />
           </div>
         </CardBody>
       </Card>
@@ -67,8 +75,9 @@ export default function OpleidingPage() {
               <div className="mt-3 text-xs font-semibold uppercase tracking-wider text-wood-700">
                 Diploma-uitreiking
               </div>
-              <div className="font-display text-2xl font-semibold text-ink-900">25 juni 2026</div>
-              <div className="mt-1 text-xs text-ink-600">Reserveer 2 plaatsen voor familie.</div>
+              <div className="font-display text-2xl font-semibold text-ink-900">
+                {s.expectedDiplomaDate ? formatDate(s.expectedDiplomaDate) : 'Nog niet gepland'}
+              </div>
             </div>
             <div className="mt-4 space-y-2 text-sm">
               <Row label="Praktijkbeoordeling N3" status="Gepland" tone="info" />

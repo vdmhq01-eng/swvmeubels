@@ -1,22 +1,30 @@
 import Link from 'next/link';
 import { PortalShell } from '@/components/portal/PortalShell';
-import { Card, CardBody, CardHeader } from '@/components/ui/Card';
+import { Card, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Toolbar, FilterChip } from '@/components/ui/Toolbar';
 import { Icon } from '@/components/ui/Icon';
-import { currentStudent } from '@/lib/mock/users';
-import { knowledgeArticles } from '@/lib/mock/faq';
+import { getDemoSession } from '@/lib/data/session';
+import { listKnowledgeForRole } from '@/lib/data/content';
+import { db } from '@/lib/db';
 import { formatDate } from '@/lib/utils';
 
-export default function StudentKennisbankPage() {
-  const articles = knowledgeArticles.filter((a) => a.roles.includes('STUDENT') && a.status === 'GEPUBLICEERD');
+export const dynamic = 'force-dynamic';
+
+export default async function StudentKennisbankPage() {
+  const ctx = getDemoSession('STUDENT');
+  const [articles, s] = await Promise.all([
+    listKnowledgeForRole('STUDENT'),
+    db.student.findUnique({ where: { id: ctx.studentId! }, include: { user: true } }),
+  ]);
+  if (!s) return null;
   const categories = Array.from(new Set(articles.map((a) => a.category)));
 
   return (
     <PortalShell
       role="STUDENT"
       activeHref="/student/kennisbank"
-      userName={currentStudent.name}
+      userName={s.user.name}
       userSubtitle="Student"
       greeting={{ title: 'Kennisbank', subtitle: 'Alle informatie op één plek.' }}
     >
@@ -44,7 +52,7 @@ export default function StudentKennisbankPage() {
               <Badge variant="wood">{a.category}</Badge>
             </div>
             <h3 className="mt-3 font-display text-lg font-semibold text-ink-900">{a.title}</h3>
-            <p className="mt-1 text-sm text-ink-600">{a.excerpt}</p>
+            <p className="mt-1 line-clamp-2 text-sm text-ink-600">{a.body}</p>
             <div className="mt-4 flex items-center justify-between text-xs text-ink-500">
               <span>v{a.version} · {formatDate(a.updatedAt)}</span>
               <span className="inline-flex items-center gap-1 font-medium text-wood-700">

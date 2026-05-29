@@ -3,16 +3,25 @@ import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Icon } from '@/components/ui/Icon';
 import { UploadDropzone } from '@/components/uren/UploadDropzone';
-import { currentStudent } from '@/lib/mock/users';
-import { documents } from '@/lib/mock/misc';
+import { getDemoSession } from '@/lib/data/session';
+import { db } from '@/lib/db';
 import { formatDate } from '@/lib/utils';
 
-export default function StudentDocumentenPage() {
+export const dynamic = 'force-dynamic';
+
+export default async function StudentDocumentenPage() {
+  const ctx = getDemoSession('STUDENT');
+  const [s, documents] = await Promise.all([
+    db.student.findUnique({ where: { id: ctx.studentId! }, include: { user: true } }),
+    db.document.findMany({ where: { studentId: ctx.studentId! }, orderBy: { uploadedAt: 'desc' } }),
+  ]);
+  if (!s) return null;
+
   return (
     <PortalShell
       role="STUDENT"
       activeHref="/student/documenten"
-      userName={currentStudent.name}
+      userName={s.user.name}
       userSubtitle="Student"
       greeting={{ title: 'Documenten', subtitle: 'Bekijk, upload en download je documenten veilig.' }}
     >
@@ -20,30 +29,33 @@ export default function StudentDocumentenPage() {
         <Card className="lg:col-span-2">
           <CardHeader title="Mijn documenten" subtitle="Versleutelde opslag · downloads via signed URL" />
           <CardBody>
-            <ul className="flex flex-col gap-2">
-              {documents.map((d) => (
-                <li key={d.id} className="flex items-center justify-between rounded-xl border border-bone-200 px-3 py-3">
-                  <div className="flex min-w-0 items-center gap-3">
-                    <div className="grid h-10 w-10 place-items-center rounded-xl bg-wood-50 text-wood-700 ring-1 ring-wood-100">
-                      <Icon.Doc className="h-4 w-4" />
-                    </div>
-                    <div className="min-w-0">
-                      <div className="truncate text-sm font-medium text-ink-900">{d.fileName}</div>
-                      <div className="text-xs text-ink-500">
-                        {d.category} · {(d.sizeBytes / 1024).toFixed(0)} KB · bewaartermijn tot {formatDate(d.retentionUntil)}
+            {documents.length === 0 ? (
+              <div className="text-sm text-ink-500">Nog geen documenten geüpload.</div>
+            ) : (
+              <ul className="flex flex-col gap-2">
+                {documents.map((d) => (
+                  <li key={d.id} className="flex items-center justify-between rounded-xl border border-bone-200 px-3 py-3">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <div className="grid h-10 w-10 place-items-center rounded-xl bg-wood-50 text-wood-700 ring-1 ring-wood-100">
+                        <Icon.Doc className="h-4 w-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="truncate text-sm font-medium text-ink-900">{d.fileName}</div>
+                        <div className="text-xs text-ink-500">
+                          {d.category} · {(d.sizeBytes / 1024).toFixed(0)} KB · bewaartermijn tot {formatDate(d.retentionUntil)}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="info">
-                      <Icon.Lock className="h-3 w-3" /> AVG
-                    </Badge>
-                    <button className="btn-secondary">Bekijk</button>
-                    <button className="btn-ghost"><Icon.ArrowRight className="h-4 w-4" /></button>
-                  </div>
-                </li>
-              ))}
-            </ul>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="info">
+                        <Icon.Lock className="h-3 w-3" /> AVG
+                      </Badge>
+                      <button className="btn-secondary">Bekijk</button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
           </CardBody>
         </Card>
 

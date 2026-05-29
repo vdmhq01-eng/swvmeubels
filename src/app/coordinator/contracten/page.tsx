@@ -4,26 +4,39 @@ import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Toolbar, FilterChip } from '@/components/ui/Toolbar';
 import { Icon } from '@/components/ui/Icon';
-import { currentCoordinator } from '@/lib/mock/users';
-import { contracts } from '@/lib/mock/misc';
-import { students } from '@/lib/mock/students';
-import { companies } from '@/lib/mock/companies';
+import { getDemoSession } from '@/lib/data/session';
+import { listContracts } from '@/lib/data/compliance';
+import { db } from '@/lib/db';
 import { formatDate } from '@/lib/utils';
 
-export default function CoordinatorContractenPage() {
+export const dynamic = 'force-dynamic';
+
+export default async function CoordinatorContractenPage() {
+  const ctx = getDemoSession('COORDINATOR');
+  const [contracts, coordinator] = await Promise.all([
+    listContracts(ctx),
+    db.coordinator.findUnique({ where: { id: ctx.coordinatorId! }, include: { user: true, region: true } }),
+  ]);
+  const c = {
+    ACTIEF: contracts.filter((co) => co.status === 'ACTIEF').length,
+    AFLOPEND: contracts.filter((co) => co.status === 'AFLOPEND').length,
+    VERLOPEN: contracts.filter((co) => co.status === 'VERLOPEN').length,
+    CONCEPT: contracts.filter((co) => co.status === 'CONCEPT').length,
+  };
+
   return (
     <PortalShell
       role="COORDINATOR"
       activeHref="/coordinator/contracten"
-      userName={currentCoordinator.name}
-      userSubtitle="Coördinator regio Noord"
+      userName={coordinator?.user.name ?? 'Coördinator'}
+      userSubtitle={`Coördinator regio ${coordinator?.region.name ?? ''}`}
       greeting={{ title: 'Contracten', subtitle: 'Aflopende, actieve en verlopen contracten in jouw regio.' }}
     >
       <div className="grid grid-cols-1 gap-5 md:grid-cols-4">
-        <KPI tone="green" label="Actief" value={contracts.filter((c) => c.status === 'Actief').length.toString()} />
-        <KPI tone="amber" label="Aflopend" value={contracts.filter((c) => c.status === 'Aflopend').length.toString()} />
-        <KPI tone="rose" label="Verlopen" value={contracts.filter((c) => c.status === 'Verlopen').length.toString()} />
-        <KPI tone="wood" label="Concept" value={contracts.filter((c) => c.status === 'Concept').length.toString()} />
+        <KPI tone="green" label="Actief" value={`${c.ACTIEF}`} />
+        <KPI tone="amber" label="Aflopend" value={`${c.AFLOPEND}`} />
+        <KPI tone="rose" label="Verlopen" value={`${c.VERLOPEN}`} />
+        <KPI tone="wood" label="Concept" value={`${c.CONCEPT}`} />
       </div>
 
       <Card className="mt-6">
@@ -49,29 +62,25 @@ export default function CoordinatorContractenPage() {
                 </tr>
               </thead>
               <tbody>
-                {contracts.map((c) => {
-                  const stu = students.find((s) => s.id === c.studentId);
-                  const com = companies.find((x) => x.id === c.companyId);
-                  return (
-                    <tr key={c.id} className="table-row">
-                      <td className="table-cell font-medium text-ink-900">{stu?.name ?? '-'}</td>
-                      <td className="table-cell">{com?.name ?? '-'}</td>
-                      <td className="table-cell">{formatDate(c.startDate)}</td>
-                      <td className="table-cell">{formatDate(c.endDate)}</td>
-                      <td className="table-cell text-right">{c.hoursPerWeek} u</td>
-                      <td className="table-cell">
-                        <Badge variant={c.status === 'Actief' ? 'success' : c.status === 'Aflopend' ? 'warning' : c.status === 'Verlopen' ? 'danger' : 'neutral'}>
-                          {c.status}
-                        </Badge>
-                      </td>
-                      <td className="table-cell text-right">
-                        <Link href={stu ? `/coordinator/studenten/${stu.id}` : '#'} className="btn-ghost">
-                          <Icon.ArrowRight className="h-4 w-4" />
-                        </Link>
-                      </td>
-                    </tr>
-                  );
-                })}
+                {contracts.map((co) => (
+                  <tr key={co.id} className="table-row">
+                    <td className="table-cell font-medium text-ink-900">{co.student.user.name}</td>
+                    <td className="table-cell">{co.company.name}</td>
+                    <td className="table-cell">{formatDate(co.startDate)}</td>
+                    <td className="table-cell">{formatDate(co.endDate)}</td>
+                    <td className="table-cell text-right">{co.hoursPerWeek} u</td>
+                    <td className="table-cell">
+                      <Badge variant={co.status === 'ACTIEF' ? 'success' : co.status === 'AFLOPEND' ? 'warning' : co.status === 'VERLOPEN' ? 'danger' : 'neutral'}>
+                        {co.status}
+                      </Badge>
+                    </td>
+                    <td className="table-cell text-right">
+                      <Link href={`/coordinator/studenten/${co.studentId}`} className="btn-ghost">
+                        <Icon.ArrowRight className="h-4 w-4" />
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>

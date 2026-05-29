@@ -3,9 +3,12 @@ import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Toolbar, FilterChip } from '@/components/ui/Toolbar';
 import { Icon } from '@/components/ui/Icon';
-import { currentCoordinator } from '@/lib/mock/users';
-import { planningItems } from '@/lib/mock/misc';
+import { getDemoSession } from '@/lib/data/session';
+import { listPlanning } from '@/lib/data/content';
+import { db } from '@/lib/db';
 import { formatDate } from '@/lib/utils';
+
+export const dynamic = 'force-dynamic';
 
 const typeLabel: Record<string, string> = {
   SCHOOLDAG: 'Schooldag',
@@ -18,13 +21,19 @@ const typeLabel: Record<string, string> = {
   NIEUWE_OPLEIDING: 'Nieuwe opleiding',
 };
 
-export default function CoordinatorPlanningPage() {
+export default async function CoordinatorPlanningPage() {
+  const ctx = getDemoSession('COORDINATOR');
+  const [items, coordinator] = await Promise.all([
+    listPlanning(),
+    db.coordinator.findUnique({ where: { id: ctx.coordinatorId! }, include: { user: true, region: true } }),
+  ]);
+
   return (
     <PortalShell
       role="COORDINATOR"
       activeHref="/coordinator/planning"
-      userName={currentCoordinator.name}
-      userSubtitle="Coördinator regio Noord"
+      userName={coordinator?.user.name ?? 'Coördinator'}
+      userSubtitle={`Coördinator regio ${coordinator?.region.name ?? ''}`}
       greeting={{ title: 'Schooljaarplanning', subtitle: 'Filter op type, regio of opleiding.' }}
     >
       <Card>
@@ -58,12 +67,10 @@ export default function CoordinatorPlanningPage() {
                 </tr>
               </thead>
               <tbody>
-                {planningItems.map((p) => (
+                {items.map((p) => (
                   <tr key={p.id} className="table-row">
                     <td className="table-cell font-medium text-ink-900">{p.title}</td>
-                    <td className="table-cell">
-                      <Badge variant="wood">{typeLabel[p.type] ?? p.type}</Badge>
-                    </td>
+                    <td className="table-cell"><Badge variant="wood">{typeLabel[p.type] ?? p.type}</Badge></td>
                     <td className="table-cell">
                       {p.endDate ? `${formatDate(p.startDate)} – ${formatDate(p.endDate)}` : formatDate(p.startDate)}
                     </td>
@@ -73,9 +80,7 @@ export default function CoordinatorPlanningPage() {
                       </Badge>
                     </td>
                     <td className="table-cell text-right">
-                      <button className="btn-ghost">
-                        <Icon.ArrowRight className="h-4 w-4" />
-                      </button>
+                      <button className="btn-ghost"><Icon.ArrowRight className="h-4 w-4" /></button>
                     </td>
                   </tr>
                 ))}
