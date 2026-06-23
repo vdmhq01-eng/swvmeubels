@@ -13,7 +13,7 @@ export default async function StudentVerzuimPage() {
   const ctx = getDemoSession('STUDENT');
   const [s, absences] = await Promise.all([
     db.student.findUnique({ where: { id: ctx.studentId! }, include: { user: true } }).catch(() => null),
-    db.absence.findMany({ where: { studentId: ctx.studentId! }, orderBy: { startDate: 'desc' } }),
+    db.absence.findMany({ where: { studentId: ctx.studentId! }, orderBy: { startDate: 'desc' } }).catch(() => []),
   ]);
   if (!s) return <StudentNotLoaded activeHref="/student/verzuim" />;
   const open = absences.filter((a) => !a.closedAt).length;

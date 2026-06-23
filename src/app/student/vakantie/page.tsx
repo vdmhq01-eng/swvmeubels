@@ -14,7 +14,7 @@ export default async function StudentVakantiePage() {
   const [s, balance, verlof] = await Promise.all([
     db.student.findUnique({ where: { id: ctx.studentId! }, include: { user: true } }).catch(() => null),
     db.holidayBalance.findUnique({ where: { studentId: ctx.studentId! } }).catch(() => null),
-    db.absence.findMany({ where: { studentId: ctx.studentId!, type: 'VERLOF' }, orderBy: { startDate: 'desc' } }),
+    db.absence.findMany({ where: { studentId: ctx.studentId!, type: 'VERLOF' }, orderBy: { startDate: 'desc' } }).catch(() => []),
   ]);
   if (!s) return <StudentNotLoaded activeHref="/student/vakantie" />;
 
