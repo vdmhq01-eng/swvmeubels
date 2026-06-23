@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { PortalShell } from '@/components/portal/PortalShell';
+import { StudentNotLoaded } from '@/components/portal/StudentNotLoaded';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Icon } from '@/components/ui/Icon';
@@ -62,7 +63,7 @@ export default async function StudentUrenPage() {
     getTimesheetsForStudent(ctx.studentId!, 10),
     db.student.findUnique({ where: { id: ctx.studentId! }, include: { user: true } }).catch(() => null),
   ]);
-  if (!s) return null;
+  if (!s) return <StudentNotLoaded activeHref="/student/uren" />;
 
   // sluit huidige week uit historie
   const previous = history.filter((t) => t.id !== currentWeek?.id);

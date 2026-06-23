@@ -1,4 +1,5 @@
 import { PortalShell } from '@/components/portal/PortalShell';
+import { StudentNotLoaded } from '@/components/portal/StudentNotLoaded';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Toolbar, FilterChip } from '@/components/ui/Toolbar';
@@ -14,7 +15,7 @@ export default async function StudentFAQPage() {
     listFaqForRole('STUDENT'),
     db.student.findUnique({ where: { id: ctx.studentId! }, include: { user: true } }).catch(() => null),
   ]);
-  if (!s) return null;
+  if (!s) return <StudentNotLoaded activeHref="/student/faq" />;
   const categories = Array.from(new Set(items.map((f) => f.category)));
 
   return (

@@ -1,4 +1,5 @@
 import { PortalShell } from '@/components/portal/PortalShell';
+import { StudentNotLoaded } from '@/components/portal/StudentNotLoaded';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Avatar } from '@/components/ui/Avatar';
 import { Icon } from '@/components/ui/Icon';
@@ -15,7 +16,7 @@ export default async function StudentBerichtenPage() {
     db.student.findUnique({ where: { id: ctx.studentId! }, include: { user: true } }).catch(() => null),
     listMessagesForUser(ctx.userId),
   ]);
-  if (!s) return null;
+  if (!s) return <StudentNotLoaded activeHref="/student/berichten" />;
   const first = messages[0];
 
   return (

@@ -1,4 +1,5 @@
 import { PortalShell } from '@/components/portal/PortalShell';
+import { StudentNotLoaded } from '@/components/portal/StudentNotLoaded';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Icon } from '@/components/ui/Icon';
@@ -15,7 +16,7 @@ export default async function StudentContractenPage() {
     db.contract.findMany({ where: { studentId: ctx.studentId! }, include: { company: true }, orderBy: { startDate: 'desc' } }).catch(() => []),
     db.document.findMany({ where: { studentId: ctx.studentId!, category: 'CONTRACT' }, orderBy: { uploadedAt: 'desc' } }).catch(() => []),
   ]);
-  if (!s) return null;
+  if (!s) return <StudentNotLoaded activeHref="/student/contracten" />;
 
   return (
     <PortalShell

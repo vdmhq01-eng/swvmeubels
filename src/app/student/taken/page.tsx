@@ -1,4 +1,5 @@
 import { PortalShell } from '@/components/portal/PortalShell';
+import { StudentNotLoaded } from '@/components/portal/StudentNotLoaded';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Icon } from '@/components/ui/Icon';
@@ -15,7 +16,7 @@ export default async function StudentTakenPage() {
     db.student.findUnique({ where: { id: ctx.studentId! }, include: { user: true } }).catch(() => null),
     listTasksForStudent(ctx.studentId!),
   ]);
-  if (!s) return null;
+  if (!s) return <StudentNotLoaded activeHref="/student/taken" />;
   const open = tasks.filter((t) => t.status === 'OPEN').length;
   const inProgress = tasks.filter((t) => t.status === 'IN_BEHANDELING').length;
   const done = tasks.filter((t) => t.status === 'AFGEROND').length;

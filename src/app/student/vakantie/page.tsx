@@ -1,4 +1,5 @@
 import { PortalShell } from '@/components/portal/PortalShell';
+import { StudentNotLoaded } from '@/components/portal/StudentNotLoaded';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Icon } from '@/components/ui/Icon';
@@ -15,7 +16,7 @@ export default async function StudentVakantiePage() {
     db.holidayBalance.findUnique({ where: { studentId: ctx.studentId! } }).catch(() => null),
     db.absence.findMany({ where: { studentId: ctx.studentId!, type: 'VERLOF' }, orderBy: { startDate: 'desc' } }),
   ]);
-  if (!s) return null;
+  if (!s) return <StudentNotLoaded activeHref="/student/vakantie" />;
 
   return (
     <PortalShell

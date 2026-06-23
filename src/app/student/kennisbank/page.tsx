@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { PortalShell } from '@/components/portal/PortalShell';
+import { StudentNotLoaded } from '@/components/portal/StudentNotLoaded';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Toolbar, FilterChip } from '@/components/ui/Toolbar';
@@ -17,7 +18,7 @@ export default async function StudentKennisbankPage() {
     listKnowledgeForRole('STUDENT'),
     db.student.findUnique({ where: { id: ctx.studentId! }, include: { user: true } }).catch(() => null),
   ]);
-  if (!s) return null;
+  if (!s) return <StudentNotLoaded activeHref="/student/kennisbank" />;
   const categories = Array.from(new Set(articles.map((a) => a.category)));
 
   return (
