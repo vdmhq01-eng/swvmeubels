@@ -17,7 +17,7 @@ export default async function StudentDetailPage({ params }: { params: { id: stri
   const ctx = getDemoSession('COORDINATOR');
   const [student, coordinator, timesheets] = await Promise.all([
     getStudentByIdScoped(ctx, params.id),
-    db.coordinator.findUnique({ where: { id: ctx.coordinatorId! }, include: { user: true, region: true } }),
+    db.coordinator.findUnique({ where: { id: ctx.coordinatorId! }, include: { user: true, region: true } }).catch(() => null),
     getTimesheetsForStudent(params.id, 4),
   ]);
   if (!student) notFound();

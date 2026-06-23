@@ -5,22 +5,23 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Icon } from '@/components/ui/Icon';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { getDemoSession } from '@/lib/data/session';
-import { db } from '@/lib/db';
+import { getStudentBasic } from '@/lib/data/student-pages';
 import { formatDate } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 
 export default async function StudentProfielPage() {
   const ctx = getDemoSession('STUDENT');
-  const s = await db.student.findUnique({
-    where: { id: ctx.studentId! },
-    include: { user: true, program: true, region: true },
-  });
+  const s = await getStudentBasic(ctx.studentId!);
 
   if (!s) {
     return (
       <PortalShell role="STUDENT" activeHref="/student/profiel" userName="Demo" userSubtitle="Student">
-        <EmptyState icon={<Icon.User className="h-5 w-5" />} title="Geen student-profiel gevonden" />
+        <EmptyState
+          icon={<Icon.User className="h-5 w-5" />}
+          title="Geen student-profiel gevonden"
+          description="Geen DB-verbinding of seed nog niet uitgevoerd."
+        />
       </PortalShell>
     );
   }
@@ -40,7 +41,7 @@ export default async function StudentProfielPage() {
               <Avatar name={s.user.name} size="lg" tone="wood" />
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h2 className="font-display text-2xl font-semibold text-ink-900">{s.user.name}</h2>
+                  <h2 className="font-display text-2xl font-bold text-ink-900">{s.user.name}</h2>
                   <Badge variant="success">{s.signal}</Badge>
                 </div>
                 <p className="mt-1 text-sm text-ink-600">
@@ -111,7 +112,7 @@ function PrivacyRow({ label, value }: { label: string; value: string }) {
 function RightCard({ title, body }: { title: string; body: string }) {
   return (
     <div className="rounded-2xl border border-bone-200 bg-bone-50 p-4">
-      <div className="text-xs font-semibold uppercase tracking-wider text-wood-700">{title}</div>
+      <div className="text-xs font-semibold uppercase tracking-wider text-primary-700">{title}</div>
       <p className="mt-1 text-sm text-ink-700">{body}</p>
     </div>
   );

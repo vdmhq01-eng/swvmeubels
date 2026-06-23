@@ -12,7 +12,7 @@ export default async function LidbedrijfContractenPage() {
   const ctx = getDemoSession('COMPANY');
   const [contracts, contact] = await Promise.all([
     listContracts(ctx),
-    db.companyContact.findFirst({ where: { companyId: ctx.companyId! }, include: { user: true, company: true } }),
+    db.companyContact.findFirst({ where: { companyId: ctx.companyId! }, include: { user: true, company: true } }).catch(() => null),
   ]);
   return (
     <PortalShell

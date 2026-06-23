@@ -24,7 +24,7 @@ export default async function StudentPlanningPage() {
   const ctx = getDemoSession('STUDENT');
   const [items, s] = await Promise.all([
     listPlanning(),
-    db.student.findUnique({ where: { id: ctx.studentId! }, include: { user: true } }),
+    db.student.findUnique({ where: { id: ctx.studentId! }, include: { user: true } }).catch(() => null),
   ]);
   if (!s) return null;
   const now = Date.now();

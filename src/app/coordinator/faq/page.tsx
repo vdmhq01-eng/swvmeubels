@@ -13,7 +13,7 @@ export default async function CoordinatorFaqPage() {
   const ctx = getDemoSession('COORDINATOR');
   const [faqItems, coordinator] = await Promise.all([
     listAllFaq(),
-    db.coordinator.findUnique({ where: { id: ctx.coordinatorId! }, include: { user: true, region: true } }),
+    db.coordinator.findUnique({ where: { id: ctx.coordinatorId! }, include: { user: true, region: true } }).catch(() => null),
   ]);
   return (
     <PortalShell

@@ -15,7 +15,7 @@ export default async function CoordinatorContractenPage() {
   const ctx = getDemoSession('COORDINATOR');
   const [contracts, coordinator] = await Promise.all([
     listContracts(ctx),
-    db.coordinator.findUnique({ where: { id: ctx.coordinatorId! }, include: { user: true, region: true } }),
+    db.coordinator.findUnique({ where: { id: ctx.coordinatorId! }, include: { user: true, region: true } }).catch(() => null),
   ]);
   const c = {
     ACTIEF: contracts.filter((co) => co.status === 'ACTIEF').length,

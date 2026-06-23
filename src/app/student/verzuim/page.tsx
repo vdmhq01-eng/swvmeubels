@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic';
 export default async function StudentVerzuimPage() {
   const ctx = getDemoSession('STUDENT');
   const [s, absences] = await Promise.all([
-    db.student.findUnique({ where: { id: ctx.studentId! }, include: { user: true } }),
+    db.student.findUnique({ where: { id: ctx.studentId! }, include: { user: true } }).catch(() => null),
     db.absence.findMany({ where: { studentId: ctx.studentId! }, orderBy: { startDate: 'desc' } }),
   ]);
   if (!s) return null;

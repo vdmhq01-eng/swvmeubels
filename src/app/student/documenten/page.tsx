@@ -12,8 +12,8 @@ export const dynamic = 'force-dynamic';
 export default async function StudentDocumentenPage() {
   const ctx = getDemoSession('STUDENT');
   const [s, documents] = await Promise.all([
-    db.student.findUnique({ where: { id: ctx.studentId! }, include: { user: true } }),
-    db.document.findMany({ where: { studentId: ctx.studentId! }, orderBy: { uploadedAt: 'desc' } }),
+    db.student.findUnique({ where: { id: ctx.studentId! }, include: { user: true } }).catch(() => null),
+    db.document.findMany({ where: { studentId: ctx.studentId! }, orderBy: { uploadedAt: 'desc' } }).catch(() => []),
   ]);
   if (!s) return null;
 

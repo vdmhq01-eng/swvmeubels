@@ -14,7 +14,7 @@ export default async function LidbedrijfVerzuimPage() {
   const ctx = getDemoSession('COMPANY');
   const [absences, contact] = await Promise.all([
     listAbsences(ctx),
-    db.companyContact.findFirst({ where: { companyId: ctx.companyId! }, include: { user: true, company: true } }),
+    db.companyContact.findFirst({ where: { companyId: ctx.companyId! }, include: { user: true, company: true } }).catch(() => null),
   ]);
 
   return (

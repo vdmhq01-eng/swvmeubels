@@ -12,7 +12,7 @@ export const dynamic = 'force-dynamic';
 export default async function StudentBerichtenPage() {
   const ctx = getDemoSession('STUDENT');
   const [s, messages] = await Promise.all([
-    db.student.findUnique({ where: { id: ctx.studentId! }, include: { user: true } }),
+    db.student.findUnique({ where: { id: ctx.studentId! }, include: { user: true } }).catch(() => null),
     listMessagesForUser(ctx.userId),
   ]);
   if (!s) return null;

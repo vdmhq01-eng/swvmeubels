@@ -1,47 +1,62 @@
 import { db } from '@/lib/db';
 import type { SessionContext } from '@/lib/security/rbac';
+import { safe } from './safe';
 
 export async function getTimesheetsForStudent(studentId: string, limit = 10) {
-  return db.timesheet.findMany({
-    where: { studentId },
-    orderBy: [{ year: 'desc' }, { weekNumber: 'desc' }],
-    take: limit,
-    include: { entries: true },
-  });
+  return safe(
+    () =>
+      db.timesheet.findMany({
+        where: { studentId },
+        orderBy: [{ year: 'desc' }, { weekNumber: 'desc' }],
+        take: limit,
+        include: { entries: true },
+      }),
+    [] as never[],
+  );
 }
 
 export async function getCurrentWeekTimesheet(studentId: string) {
-  return db.timesheet.findFirst({
-    where: { studentId },
-    orderBy: [{ year: 'desc' }, { weekNumber: 'desc' }],
-    include: { entries: { orderBy: { date: 'asc' } } },
-  });
+  return safe(
+    () =>
+      db.timesheet.findFirst({
+        where: { studentId },
+        orderBy: [{ year: 'desc' }, { weekNumber: 'desc' }],
+        include: { entries: { orderBy: { date: 'asc' } } },
+      }),
+    null,
+  );
 }
 
 export async function getPendingApprovals(ctx: SessionContext) {
-  const studentFilter =
-    ctx.role === 'COMPANY' && ctx.companyId
-      ? { companyId: ctx.companyId }
-      : ctx.role === 'COORDINATOR' && ctx.coordinatorId
-      ? { coordinatorId: ctx.coordinatorId }
-      : {};
-  return db.timesheet.findMany({
-    where: { status: 'INGEDIEND', student: studentFilter },
-    include: {
-      student: { include: { user: true, company: true } },
-      entries: { orderBy: { date: 'asc' } },
-    },
-    orderBy: { submittedAt: 'desc' },
-  });
+  return safe(async () => {
+    const studentFilter =
+      ctx.role === 'COMPANY' && ctx.companyId
+        ? { companyId: ctx.companyId }
+        : ctx.role === 'COORDINATOR' && ctx.coordinatorId
+        ? { coordinatorId: ctx.coordinatorId }
+        : {};
+    return db.timesheet.findMany({
+      where: { status: 'INGEDIEND', student: studentFilter },
+      include: {
+        student: { include: { user: true, company: true } },
+        entries: { orderBy: { date: 'asc' } },
+      },
+      orderBy: { submittedAt: 'desc' },
+    });
+  }, [] as never[]);
 }
 
 export async function getRecentWeekStatsForCompany(companyId: string) {
-  return db.timesheet.findMany({
-    where: { student: { companyId } },
-    orderBy: [{ year: 'desc' }, { weekNumber: 'desc' }],
-    take: 30,
-    include: { student: { include: { user: true } }, entries: true },
-  });
+  return safe(
+    () =>
+      db.timesheet.findMany({
+        where: { student: { companyId } },
+        orderBy: [{ year: 'desc' }, { weekNumber: 'desc' }],
+        take: 30,
+        include: { student: { include: { user: true } }, entries: true },
+      }),
+    [] as never[],
+  );
 }
 
 export function decimalToNumber(value: unknown): number {

@@ -14,7 +14,7 @@ export default async function CoordinatorVerzuimPage() {
   const ctx = getDemoSession('COORDINATOR');
   const [absences, coordinator] = await Promise.all([
     listAbsences(ctx),
-    db.coordinator.findUnique({ where: { id: ctx.coordinatorId! }, include: { user: true, region: true } }),
+    db.coordinator.findUnique({ where: { id: ctx.coordinatorId! }, include: { user: true, region: true } }).catch(() => null),
   ]);
   const open = absences.filter((a) => !a.closedAt).length;
   const gesloten = absences.length - open;

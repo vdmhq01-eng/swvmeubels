@@ -25,7 +25,7 @@ export default async function CoordinatorUrenPage() {
   const ctx = getDemoSession('COORDINATOR');
   const [students, coordinator] = await Promise.all([
     listStudents(ctx),
-    db.coordinator.findUnique({ where: { id: ctx.coordinatorId! }, include: { user: true, region: true } }),
+    db.coordinator.findUnique({ where: { id: ctx.coordinatorId! }, include: { user: true, region: true } }).catch(() => null),
   ]);
 
   // Voor elke student: meest recente weekstaat (Promise.all voor snelheid)

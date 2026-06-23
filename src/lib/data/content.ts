@@ -1,55 +1,75 @@
 import { db } from '@/lib/db';
 import type { Role } from '@prisma/client';
+import { safe } from './safe';
 
 export async function listFaqForRole(role: Role) {
-  return db.faqItem.findMany({
-    where: { status: 'GEPUBLICEERD', roles: { has: role } },
-    orderBy: { order: 'asc' },
-  });
+  return safe(
+    () =>
+      db.faqItem.findMany({
+        where: { status: 'GEPUBLICEERD', roles: { has: role } },
+        orderBy: { order: 'asc' },
+      }),
+    [] as never[],
+  );
 }
 
 export async function listAllFaq() {
-  return db.faqItem.findMany({ orderBy: { order: 'asc' } });
+  return safe(() => db.faqItem.findMany({ orderBy: { order: 'asc' } }), [] as never[]);
 }
 
 export async function listKnowledgeForRole(role: Role) {
-  return db.knowledgeArticle.findMany({
-    where: { status: 'GEPUBLICEERD', roles: { has: role } },
-    orderBy: { updatedAt: 'desc' },
-  });
+  return safe(
+    () =>
+      db.knowledgeArticle.findMany({
+        where: { status: 'GEPUBLICEERD', roles: { has: role } },
+        orderBy: { updatedAt: 'desc' },
+      }),
+    [] as never[],
+  );
 }
 
 export async function listAllKnowledge() {
-  return db.knowledgeArticle.findMany({ orderBy: { updatedAt: 'desc' } });
+  return safe(
+    () => db.knowledgeArticle.findMany({ orderBy: { updatedAt: 'desc' } }),
+    [] as never[],
+  );
 }
 
 export async function getKnowledgeArticleById(id: string) {
-  return db.knowledgeArticle.findUnique({ where: { id } });
+  return safe(() => db.knowledgeArticle.findUnique({ where: { id } }), null);
 }
 
 export async function listPlanning() {
-  return db.planningItem.findMany({ orderBy: { startDate: 'asc' } });
+  return safe(() => db.planningItem.findMany({ orderBy: { startDate: 'asc' } }), [] as never[]);
 }
 
 export async function listUpcomingPlanning(limit = 10) {
-  return db.planningItem.findMany({
-    where: { startDate: { gte: new Date() } },
-    orderBy: { startDate: 'asc' },
-    take: limit,
-  });
+  return safe(
+    () =>
+      db.planningItem.findMany({
+        where: { startDate: { gte: new Date() } },
+        orderBy: { startDate: 'asc' },
+        take: limit,
+      }),
+    [] as never[],
+  );
 }
 
 export async function listMessagesForUser(userId: string) {
-  return db.message.findMany({
-    where: { toUserId: userId },
-    include: { fromUser: { select: { name: true, email: true } } },
-    orderBy: { sentAt: 'desc' },
-  });
+  return safe(
+    () =>
+      db.message.findMany({
+        where: { toUserId: userId },
+        include: { fromUser: { select: { name: true, email: true } } },
+        orderBy: { sentAt: 'desc' },
+      }),
+    [] as never[],
+  );
 }
 
 export async function listTasksForStudent(studentId: string) {
-  return db.task.findMany({
-    where: { studentId },
-    orderBy: { dueDate: 'asc' },
-  });
+  return safe(
+    () => db.task.findMany({ where: { studentId }, orderBy: { dueDate: 'asc' } }),
+    [] as never[],
+  );
 }

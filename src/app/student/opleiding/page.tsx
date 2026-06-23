@@ -13,7 +13,7 @@ export default async function OpleidingPage() {
   const s = await db.student.findUnique({
     where: { id: ctx.studentId! },
     include: { user: true, program: true },
-  });
+  }).catch(() => null);
   if (!s) return null;
   const progress = Math.min(100, s.yearOfStudy * 25 + 15);
 

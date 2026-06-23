@@ -3,26 +3,28 @@ import { PortalShell } from '@/components/portal/PortalShell';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Avatar } from '@/components/ui/Avatar';
 import { Icon } from '@/components/ui/Icon';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { getDemoSession } from '@/lib/data/session';
-import { db } from '@/lib/db';
+import { getStudentWithCompany } from '@/lib/data/student-pages';
 
 export const dynamic = 'force-dynamic';
 
 export default async function StudentLeerbedrijfPage() {
   const ctx = getDemoSession('STUDENT');
-  const s = await db.student.findUnique({
-    where: { id: ctx.studentId! },
-    include: {
-      user: true,
-      company: {
-        include: {
-          region: true,
-          contacts: { include: { user: true }, where: { primary: true }, take: 1 },
-        },
-      },
-    },
-  });
-  if (!s) return null;
+  const s = await getStudentWithCompany(ctx.studentId!);
+
+  if (!s) {
+    return (
+      <PortalShell role="STUDENT" activeHref="/student/leerbedrijf" userName="Demo" userSubtitle="Student">
+        <EmptyState
+          icon={<Icon.Briefcase className="h-5 w-5" />}
+          title="Geen leerbedrijf gegevens"
+          description="Geen verbinding met de database, of seed nog niet uitgevoerd."
+        />
+      </PortalShell>
+    );
+  }
+
   const contact = s.company.contacts[0];
 
   return (
@@ -37,11 +39,11 @@ export default async function StudentLeerbedrijfPage() {
         <CardBody>
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="grid h-14 w-14 place-items-center rounded-2xl bg-wood-50 text-wood-700 ring-1 ring-wood-100">
+              <div className="grid h-14 w-14 place-items-center rounded-2xl bg-primary-50 text-primary-700 ring-1 ring-primary-100">
                 <Icon.Briefcase className="h-6 w-6" />
               </div>
               <div>
-                <h2 className="font-display text-2xl font-semibold text-ink-900">{s.company.name}</h2>
+                <h2 className="font-display text-2xl font-bold text-ink-900">{s.company.name}</h2>
                 <p className="text-sm text-ink-500">Regio {s.company.region.name} · {s.company.membership}-lid</p>
               </div>
             </div>
@@ -88,7 +90,7 @@ export default async function StudentLeerbedrijfPage() {
                     i === 2
                       ? 'border-sky-100 bg-sky-50 text-sky-700'
                       : i < 5
-                      ? 'border-wood-100 bg-wood-50 text-wood-700'
+                      ? 'border-primary-100 bg-primary-50 text-primary-700'
                       : 'border-bone-200 bg-bone-50 text-ink-400'
                   }`}
                 >

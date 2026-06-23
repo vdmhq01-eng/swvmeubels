@@ -16,7 +16,7 @@ export default async function CompanyDetailPage({ params }: { params: { id: stri
   const ctx = getDemoSession('COORDINATOR');
   const [company, coordinator] = await Promise.all([
     getCompanyById(params.id),
-    db.coordinator.findUnique({ where: { id: ctx.coordinatorId! }, include: { user: true, region: true } }),
+    db.coordinator.findUnique({ where: { id: ctx.coordinatorId! }, include: { user: true, region: true } }).catch(() => null),
   ]);
   if (!company) notFound();
   const contact = company.contacts[0];

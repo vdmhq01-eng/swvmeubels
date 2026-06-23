@@ -11,7 +11,7 @@ export default async function LidbedrijfPlanningPage() {
   const ctx = getDemoSession('COMPANY');
   const [students, contact] = await Promise.all([
     listStudentsForCompany(ctx.companyId!),
-    db.companyContact.findFirst({ where: { companyId: ctx.companyId! }, include: { user: true, company: true } }),
+    db.companyContact.findFirst({ where: { companyId: ctx.companyId! }, include: { user: true, company: true } }).catch(() => null),
   ]);
   const days = ['Ma 27 mei', 'Di 28 mei', 'Wo 29 mei', 'Do 30 mei', 'Vr 31 mei'];
 

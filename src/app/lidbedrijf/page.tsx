@@ -18,7 +18,7 @@ export default async function LidbedrijfDashboardPage() {
   const ctx = getDemoSession('COMPANY');
   const [data, contact] = await Promise.all([
     getCompanyDashboard(ctx),
-    db.companyContact.findFirst({ where: { companyId: ctx.companyId! }, include: { user: true, company: true } }),
+    db.companyContact.findFirst({ where: { companyId: ctx.companyId! }, include: { user: true, company: true } }).catch(() => null),
   ]);
 
   if (!data) {

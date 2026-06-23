@@ -15,7 +15,7 @@ export default async function LidbedrijfStudentenPage() {
   const ctx = getDemoSession('COMPANY');
   const [students, contact] = await Promise.all([
     listStudentsForCompany(ctx.companyId!),
-    db.companyContact.findFirst({ where: { companyId: ctx.companyId! }, include: { user: true, company: true } }),
+    db.companyContact.findFirst({ where: { companyId: ctx.companyId! }, include: { user: true, company: true } }).catch(() => null),
   ]);
   return (
     <PortalShell

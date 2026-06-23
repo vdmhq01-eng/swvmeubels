@@ -14,7 +14,7 @@ export default async function CoordinatorLidbedrijvenPage() {
   const ctx = getDemoSession('COORDINATOR');
   const [companies, coordinator] = await Promise.all([
     listCompanies(ctx.regionId),
-    db.coordinator.findUnique({ where: { id: ctx.coordinatorId! }, include: { user: true, region: true } }),
+    db.coordinator.findUnique({ where: { id: ctx.coordinatorId! }, include: { user: true, region: true } }).catch(() => null),
   ]);
 
   return (

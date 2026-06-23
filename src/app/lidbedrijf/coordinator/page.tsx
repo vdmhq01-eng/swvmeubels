@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic';
 export default async function LidbedrijfCoordinatorPage() {
   const ctx = getDemoSession('COMPANY');
   const [contact, anyStudent] = await Promise.all([
-    db.companyContact.findFirst({ where: { companyId: ctx.companyId! }, include: { user: true, company: true } }),
+    db.companyContact.findFirst({ where: { companyId: ctx.companyId! }, include: { user: true, company: true } }).catch(() => null),
     db.student.findFirst({
       where: { companyId: ctx.companyId! },
       include: { coordinator: { include: { user: true, region: true, _count: { select: { students: true } } } } },

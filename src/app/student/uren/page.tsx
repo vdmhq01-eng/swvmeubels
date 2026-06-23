@@ -60,7 +60,7 @@ export default async function StudentUrenPage() {
   const [currentWeek, history, s] = await Promise.all([
     getCurrentWeekTimesheet(ctx.studentId!),
     getTimesheetsForStudent(ctx.studentId!, 10),
-    db.student.findUnique({ where: { id: ctx.studentId! }, include: { user: true } }),
+    db.student.findUnique({ where: { id: ctx.studentId! }, include: { user: true } }).catch(() => null),
   ]);
   if (!s) return null;
 

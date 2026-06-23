@@ -22,10 +22,10 @@ export default async function IntegratiesPage() {
   const [integrations, recentLogs, studentMappings, contractCount, companyCount, coordCount] = await Promise.all([
     listIntegrations(),
     listSyncLogs(8),
-    db.student.count(),
-    db.contract.count(),
-    db.company.count(),
-    db.coordinator.count(),
+    db.student.count().catch(() => 0),
+    db.contract.count().catch(() => 0),
+    db.company.count().catch(() => 0),
+    db.coordinator.count().catch(() => 0),
   ]);
 
   return (

@@ -14,7 +14,7 @@ export default async function CoordinatorKennisbankPage() {
   const ctx = getDemoSession('COORDINATOR');
   const [articles, coordinator] = await Promise.all([
     listAllKnowledge(),
-    db.coordinator.findUnique({ where: { id: ctx.coordinatorId! }, include: { user: true, region: true } }),
+    db.coordinator.findUnique({ where: { id: ctx.coordinatorId! }, include: { user: true, region: true } }).catch(() => null),
   ]);
   return (
     <PortalShell

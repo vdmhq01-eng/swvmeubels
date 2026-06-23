@@ -11,9 +11,9 @@ export const dynamic = 'force-dynamic';
 export default async function StudentContractenPage() {
   const ctx = getDemoSession('STUDENT');
   const [s, contracts, docs] = await Promise.all([
-    db.student.findUnique({ where: { id: ctx.studentId! }, include: { user: true } }),
-    db.contract.findMany({ where: { studentId: ctx.studentId! }, include: { company: true }, orderBy: { startDate: 'desc' } }),
-    db.document.findMany({ where: { studentId: ctx.studentId!, category: 'CONTRACT' }, orderBy: { uploadedAt: 'desc' } }),
+    db.student.findUnique({ where: { id: ctx.studentId! }, include: { user: true } }).catch(() => null),
+    db.contract.findMany({ where: { studentId: ctx.studentId! }, include: { company: true }, orderBy: { startDate: 'desc' } }).catch(() => []),
+    db.document.findMany({ where: { studentId: ctx.studentId!, category: 'CONTRACT' }, orderBy: { uploadedAt: 'desc' } }).catch(() => []),
   ]);
   if (!s) return null;
 

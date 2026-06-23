@@ -17,7 +17,7 @@ export default async function CoordinatorDiplomaPage() {
       include: { user: true, program: true },
       orderBy: { expectedDiplomaDate: 'asc' },
     }),
-    db.coordinator.findUnique({ where: { id: ctx.coordinatorId! }, include: { user: true, region: true } }),
+    db.coordinator.findUnique({ where: { id: ctx.coordinatorId! }, include: { user: true, region: true } }).catch(() => null),
   ]);
   const goed = kandidaten.filter((k) => k.signal === 'Goed').length;
   const aandacht = kandidaten.filter((k) => k.signal !== 'Goed').length;

@@ -14,7 +14,7 @@ export default async function CoordinatorVakantiePage() {
   const [students, balances, coordinator] = await Promise.all([
     listStudents(ctx),
     listHolidayBalances(ctx),
-    db.coordinator.findUnique({ where: { id: ctx.coordinatorId! }, include: { user: true, region: true } }),
+    db.coordinator.findUnique({ where: { id: ctx.coordinatorId! }, include: { user: true, region: true } }).catch(() => null),
   ]);
   const balanceByStudent = new Map(balances.map((b) => [b.studentId, b]));
 

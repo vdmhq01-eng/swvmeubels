@@ -15,7 +15,7 @@ export default async function StudentenListPage() {
   const ctx = getDemoSession('COORDINATOR');
   const [students, coordinator] = await Promise.all([
     listStudents(ctx),
-    db.coordinator.findUnique({ where: { id: ctx.coordinatorId! }, include: { user: true, region: true } }),
+    db.coordinator.findUnique({ where: { id: ctx.coordinatorId! }, include: { user: true, region: true } }).catch(() => null),
   ]);
 
   return (

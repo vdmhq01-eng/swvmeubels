@@ -16,7 +16,7 @@ export default async function LidbedrijfGoedkeurenPage() {
   const ctx = getDemoSession('COMPANY');
   const [pending, contact] = await Promise.all([
     getPendingApprovals(ctx),
-    db.companyContact.findFirst({ where: { companyId: ctx.companyId! }, include: { user: true, company: true } }),
+    db.companyContact.findFirst({ where: { companyId: ctx.companyId! }, include: { user: true, company: true } }).catch(() => null),
   ]);
 
   return (

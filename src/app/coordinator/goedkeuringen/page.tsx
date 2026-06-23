@@ -16,7 +16,7 @@ export default async function CoordinatorGoedkeuringenPage() {
   const ctx = getDemoSession('COORDINATOR');
   const [pending, coordinator] = await Promise.all([
     getPendingApprovals(ctx),
-    db.coordinator.findUnique({ where: { id: ctx.coordinatorId! }, include: { user: true, region: true } }),
+    db.coordinator.findUnique({ where: { id: ctx.coordinatorId! }, include: { user: true, region: true } }).catch(() => null),
   ]);
 
   return (

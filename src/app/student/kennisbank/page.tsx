@@ -15,7 +15,7 @@ export default async function StudentKennisbankPage() {
   const ctx = getDemoSession('STUDENT');
   const [articles, s] = await Promise.all([
     listKnowledgeForRole('STUDENT'),
-    db.student.findUnique({ where: { id: ctx.studentId! }, include: { user: true } }),
+    db.student.findUnique({ where: { id: ctx.studentId! }, include: { user: true } }).catch(() => null),
   ]);
   if (!s) return null;
   const categories = Array.from(new Set(articles.map((a) => a.category)));

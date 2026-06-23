@@ -12,7 +12,7 @@ export const dynamic = 'force-dynamic';
 export default async function StudentTakenPage() {
   const ctx = getDemoSession('STUDENT');
   const [s, tasks] = await Promise.all([
-    db.student.findUnique({ where: { id: ctx.studentId! }, include: { user: true } }),
+    db.student.findUnique({ where: { id: ctx.studentId! }, include: { user: true } }).catch(() => null),
     listTasksForStudent(ctx.studentId!),
   ]);
   if (!s) return null;

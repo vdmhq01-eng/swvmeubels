@@ -12,7 +12,7 @@ export default async function StudentFAQPage() {
   const ctx = getDemoSession('STUDENT');
   const [items, s] = await Promise.all([
     listFaqForRole('STUDENT'),
-    db.student.findUnique({ where: { id: ctx.studentId! }, include: { user: true } }),
+    db.student.findUnique({ where: { id: ctx.studentId! }, include: { user: true } }).catch(() => null),
   ]);
   if (!s) return null;
   const categories = Array.from(new Set(items.map((f) => f.category)));
