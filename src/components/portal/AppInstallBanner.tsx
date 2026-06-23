@@ -126,18 +126,18 @@ export function AppInstallBanner() {
   if (!show || installState === 'installed') return null;
 
   return (
-    <div className="mb-6 overflow-hidden rounded-2xl border border-wood-200 bg-gradient-to-br from-wood-50 to-bone-50 shadow-card">
+    <div className="mb-6 overflow-hidden rounded-2xl border border-primary-200 bg-gradient-to-br from-primary-50 to-bone-50 shadow-card">
       <div className="grid grid-cols-1 gap-4 p-5 md:grid-cols-[auto_1fr_auto] md:items-center md:gap-6">
-        <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-wood-500 text-white shadow-soft">
+        <div className="grid h-12 w-12 shrink-0 place-items-center rounded-md bg-primary-500 text-white shadow-soft">
           <PhoneIcon className="h-6 w-6" />
         </div>
 
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="font-display text-base font-semibold text-ink-900">
+            <h3 className="font-display text-base font-bold text-ink-900">
               Installeer de SWV Meubel app
             </h3>
-            <span className="badge-wood">Aanbevolen</span>
+            <span className="badge-primary">Aanbevolen</span>
           </div>
           <p className="mt-1 text-sm leading-relaxed text-ink-600">
             Krijg meldingen op je telefoon bij ziekmeldingen, weekstaten en planning. De app

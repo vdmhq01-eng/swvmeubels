@@ -14,14 +14,15 @@ export default function AppleIcon() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: 'linear-gradient(180deg, #956E3F 0%, #5A3F22 100%)',
-          color: '#FBF8F3',
-          fontFamily: 'Georgia, serif',
-          fontSize: 120,
-          fontWeight: 600,
+          background: '#EC6806',
+          color: '#FFFFFF',
+          fontFamily: 'sans-serif',
+          fontSize: 60,
+          fontWeight: 700,
+          letterSpacing: '-1px',
         }}
       >
-        S
+        SWV
       </div>
     ),
     { ...size },

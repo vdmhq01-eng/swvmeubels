@@ -14,15 +14,16 @@ export default function Icon() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: 'linear-gradient(180deg, #956E3F 0%, #5A3F22 100%)',
-          color: '#FBF8F3',
-          fontFamily: 'Georgia, serif',
-          fontSize: 22,
-          fontWeight: 600,
-          borderRadius: 6,
+          background: '#EC6806',
+          color: '#FFFFFF',
+          fontFamily: 'sans-serif',
+          fontSize: 11,
+          fontWeight: 700,
+          letterSpacing: '-0.5px',
+          borderRadius: 5,
         }}
       >
-        S
+        SWV
       </div>
     ),
     { ...size },
