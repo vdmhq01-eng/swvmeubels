@@ -1,7 +1,18 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { MarketingShell } from '@/components/marketing/MarketingShell';
+import { Hero, heroImages } from '@/components/marketing/Hero';
 import { newsItems } from '@/lib/mock/marketing';
 import { formatDateLong } from '@/lib/utils';
+
+const newsImages = [
+  'https://images.unsplash.com/photo-1611025437671-ae3acc7e4d34?auto=format&fit=crop&w=1200&q=80',
+  'https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&w=1200&q=80',
+  'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=1200&q=80',
+  'https://images.unsplash.com/photo-1568871453524-78fc36476b15?auto=format&fit=crop&w=1200&q=80',
+  'https://images.unsplash.com/photo-1503387837-b154d5074bd2?auto=format&fit=crop&w=1200&q=80',
+  'https://images.unsplash.com/photo-1572297870735-1bd7d4926b1a?auto=format&fit=crop&w=1200&q=80',
+];
 
 const categoryVariant: Record<string, string> = {
   Nieuws: 'bg-primary-50 text-primary-700 border-primary-100',
@@ -12,26 +23,27 @@ const categoryVariant: Record<string, string> = {
 export default function NieuwsPage() {
   return (
     <MarketingShell activeHref="/nieuws">
-      <section className="bg-ink-900 text-white">
-        <div className="mx-auto max-w-6xl px-6 py-20">
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider">
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary-400" /> Nieuws &amp; events
-          </div>
-          <h1 className="mt-4 font-display text-4xl font-bold leading-tight sm:text-5xl">
-            Wat speelt er bij SWV<span className="text-primary-400">?</span>
-          </h1>
-          <p className="mt-5 max-w-2xl text-lg leading-relaxed text-white/85">
-            Nieuws over opleidingen, verhalen van studenten en lidbedrijven, en aankondigingen
-            van events in het hele land.
-          </p>
-        </div>
-      </section>
+      <Hero
+        eyebrow="Nieuws & events"
+        title="Wat speelt er bij SWV"
+        highlight="?"
+        description="Nieuws over opleidingen, verhalen van studenten en lidbedrijven, en aankondigingen van events in het hele land."
+        image={heroImages.nieuws}
+      />
 
       <section className="mx-auto max-w-6xl px-6 py-16">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {newsItems.map((item) => (
+          {newsItems.map((item, i) => (
             <article key={item.slug} className="flex flex-col overflow-hidden rounded-2xl border border-bone-200 bg-white shadow-card transition hover:-translate-y-0.5 hover:shadow-lg">
-              <div className="aspect-[16/10] bg-gradient-to-br from-bone-200 to-bone-100" />
+              <div className="relative aspect-[16/10]">
+                <Image
+                  src={newsImages[i % newsImages.length]}
+                  alt={item.title}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  className="object-cover"
+                />
+              </div>
               <div className="flex flex-1 flex-col gap-3 p-6">
                 <div className="flex items-center justify-between">
                   <span className={`badge border ${categoryVariant[item.category]}`}>{item.category}</span>

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { MarketingShell } from '@/components/marketing/MarketingShell';
+import { Hero, heroImages } from '@/components/marketing/Hero';
 import { Icon } from '@/components/ui/Icon';
 
 const opleidingen = [
@@ -30,45 +31,31 @@ const week = [
 export default function StudentenPage() {
   return (
     <MarketingShell activeHref="/studenten">
-      <section className="bg-ink-900 text-white">
-        <div className="mx-auto grid max-w-6xl gap-12 px-6 py-20 lg:grid-cols-2 lg:py-28">
-          <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider">
-              <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary-400" />
-              Voor studenten
-            </div>
-            <h1 className="mt-4 font-display text-4xl font-bold leading-tight sm:text-5xl">
-              Werken én leren in het meubelvak<span className="text-primary-400">.</span>
-            </h1>
-            <p className="mt-5 max-w-xl text-lg leading-relaxed text-white/85">
-              Vier dagen per week bij een lidbedrijf, één dag naar school in je eigen regio. Een
-              werkbegeleider in het bedrijf, en voor iedere student begeleiding door een
-              regionale coördinator.
+      <Hero
+        eyebrow="Voor studenten"
+        title="Werken én leren in het meubelvak"
+        highlight="."
+        description="Vier dagen per week bij een lidbedrijf, één dag naar school in je eigen regio. Een werkbegeleider in het bedrijf, en voor iedere student begeleiding door een regionale coördinator."
+        image={heroImages.studenten}
+        side={
+          <div className="corner-br w-full bg-primary-500 p-8 text-white">
+            <div className="text-xs font-bold uppercase tracking-[0.2em] text-white/80">Verdien direct</div>
+            <h2 className="mt-2 font-display text-2xl font-bold">Eigen salaris, eigen vakantiedagen, eigen contract</h2>
+            <p className="mt-3 text-sm leading-relaxed text-white/90">
+              Je staat in dienst van het Samenwerkingsverband. Salaris, verzekeringen en
+              vakantiedagen worden centraal geregeld. Geen gedoe.
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/solliciteren" className="btn-primary">Solliciteren</Link>
-              <Link
-                href="/regios"
-                className="inline-flex items-center justify-center gap-2 rounded-md border-2 border-white px-4 py-2.5 text-sm font-bold uppercase tracking-wide text-white hover:bg-white hover:text-ink-900 transition"
-              >
-                Vind een bedrijf in jouw regio
-              </Link>
-            </div>
           </div>
-          <div className="hidden items-center lg:flex">
-            <div className="corner-br w-full bg-primary-500 p-8 text-white">
-              <div className="text-xs font-bold uppercase tracking-[0.2em] text-white/80">Verdien direct</div>
-              <h2 className="mt-2 font-display text-2xl font-bold">
-                Eigen salaris, eigen vakantiedagen, eigen contract
-              </h2>
-              <p className="mt-3 text-sm leading-relaxed text-white/90">
-                Je staat in dienst van het Samenwerkingsverband. Salaris, verzekeringen en
-                vakantiedagen worden centraal geregeld. Geen gedoe.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+        }
+      >
+        <Link href="/solliciteren" className="btn-primary">Solliciteren</Link>
+        <Link
+          href="/regios"
+          className="inline-flex items-center justify-center gap-2 rounded-md border-2 border-white px-4 py-2.5 text-sm font-bold uppercase tracking-wide text-white hover:bg-white hover:text-ink-900 transition"
+        >
+          Vind een bedrijf in jouw regio
+        </Link>
+      </Hero>
 
       <section className="mx-auto max-w-6xl px-6 py-16">
         <div className="mb-10">

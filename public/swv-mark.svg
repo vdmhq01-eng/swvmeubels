@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <!-- 2x2 quadrant mark in SWV/CBM brand colors: teal, blue, green, orange.
+       Elke quadrant heeft een diagonale zigzag-vorm die naar binnen wijst. -->
+
+  <!-- Top-left: teal -->
+  <g>
+    <polygon points="0,0 56,0 56,24 24,24 24,56 0,56" fill="#0FA9A4"/>
+    <polygon points="24,24 56,24 56,56 32,56 32,32 24,32" fill="#0FA9A4"/>
+  </g>
+
+  <!-- Top-right: blue -->
+  <g transform="translate(64,0)">
+    <polygon points="0,0 56,0 56,56 32,56 32,24 0,24" fill="#2D8FC6"/>
+    <polygon points="0,24 24,24 24,32 32,32 32,56 0,56" fill="#2D8FC6" fill-opacity="0"/>
+    <polygon points="0,32 24,32 24,56 0,56" fill="#2D8FC6"/>
+  </g>
+
+  <!-- Bottom-left: green -->
+  <g transform="translate(0,64)">
+    <polygon points="0,0 24,0 24,32 56,32 56,56 0,56" fill="#86BC2F"/>
+    <polygon points="24,0 56,0 56,32 32,32 32,24 24,24" fill="#86BC2F"/>
+  </g>
+
+  <!-- Bottom-right: oranje -->
+  <g transform="translate(64,64)">
+    <polygon points="32,0 56,0 56,56 0,56 0,32 32,32" fill="#EC6806"/>
+    <polygon points="0,0 32,0 32,24 24,24 24,32 0,32" fill="#EC6806"/>
+  </g>
+</svg>

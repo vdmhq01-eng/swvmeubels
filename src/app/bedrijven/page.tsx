@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { MarketingShell } from '@/components/marketing/MarketingShell';
+import { Hero, heroImages } from '@/components/marketing/Hero';
 import { Icon } from '@/components/ui/Icon';
 
 const voordelen = [
@@ -18,42 +19,28 @@ const voordelen = [
 export default function BedrijvenPage() {
   return (
     <MarketingShell activeHref="/bedrijven">
-      <section className="bg-ink-900 text-white">
-        <div className="mx-auto grid max-w-6xl gap-12 px-6 py-20 lg:grid-cols-2 lg:py-28">
-          <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider">
-              <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary-400" />
-              Voor bedrijven
-            </div>
-            <h1 className="mt-4 font-display text-4xl font-bold leading-tight sm:text-5xl">
-              Leid jonge vakmensen op<span className="text-primary-400">.</span>
-            </h1>
-            <p className="mt-5 max-w-xl text-lg leading-relaxed text-white/85">
-              Een Samenwerkingsverband is een groep bedrijven die 4 dagen per week BBL-studenten
-              aan het werk hebben binnen het bedrijf. De regionale coördinatoren en centrale
-              personeelsadministratie nemen je veel werk uit handen.
+      <Hero
+        eyebrow="Voor bedrijven"
+        title="Leid jonge vakmensen op"
+        highlight="."
+        description="Een Samenwerkingsverband is een groep bedrijven die 4 dagen per week BBL-studenten aan het werk hebben binnen het bedrijf. De regionale coördinatoren en centrale personeelsadministratie nemen je veel werk uit handen."
+        image={heroImages.bedrijven}
+        side={
+          <div className="corner-br w-full bg-primary-500 p-8 text-white">
+            <div className="text-xs font-bold uppercase tracking-[0.2em] text-white/80">10 voordelen</div>
+            <h2 className="mt-2 font-display text-2xl font-bold">Werkend leren — productief én leerzaam</h2>
+            <p className="mt-3 text-sm leading-relaxed text-white/90">
+              Studenten leveren direct waarde in je bedrijf en groeien onder begeleiding uit tot
+              vakmensen die je later kunt behouden als vaste medewerker.
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/solliciteren" className="btn-primary">Word lidbedrijf</Link>
-              <Link href="/regios" className="inline-flex items-center justify-center gap-2 rounded-md border-2 border-white px-4 py-2.5 text-sm font-bold uppercase tracking-wide text-white hover:bg-white hover:text-ink-900 transition">
-                Vind je regio
-              </Link>
-            </div>
           </div>
-          <div className="hidden items-center lg:flex">
-            <div className="corner-br w-full bg-primary-500 p-8 text-white">
-              <div className="text-xs font-bold uppercase tracking-[0.2em] text-white/80">10 voordelen</div>
-              <h2 className="mt-2 font-display text-2xl font-bold">
-                Werkend leren — productief én leerzaam
-              </h2>
-              <p className="mt-3 text-sm leading-relaxed text-white/90">
-                Studenten leveren direct waarde in je bedrijf en groeien onder begeleiding uit tot
-                vakmensen die je later kunt behouden als vaste medewerker.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+        }
+      >
+        <Link href="/solliciteren" className="btn-primary">Word lidbedrijf</Link>
+        <Link href="/regios" className="inline-flex items-center justify-center gap-2 rounded-md border-2 border-white px-4 py-2.5 text-sm font-bold uppercase tracking-wide text-white hover:bg-white hover:text-ink-900 transition">
+          Vind je regio
+        </Link>
+      </Hero>
 
       <section className="mx-auto max-w-6xl px-6 py-16">
         <div className="mb-10">

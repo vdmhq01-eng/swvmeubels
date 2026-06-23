@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
 export function Logo({ className, variant = 'light' }: { className?: string; variant?: 'light' | 'dark' }) {
@@ -5,9 +6,14 @@ export function Logo({ className, variant = 'light' }: { className?: string; var
   const subColor = variant === 'dark' ? 'text-white/70' : 'text-ink-500';
   return (
     <div className={cn('flex items-center gap-3', className)}>
-      <div className="grid h-11 w-11 place-items-center rounded-md bg-primary-500 text-white shadow-soft">
-        <span className="font-display text-lg font-bold leading-none tracking-tighter">SWV</span>
-      </div>
+      <Image
+        src="/swv-mark.svg"
+        alt="SWV Meubel"
+        width={44}
+        height={44}
+        priority
+        className="h-11 w-11 shrink-0"
+      />
       <div className="leading-tight">
         <div className={cn('font-display text-base font-bold tracking-wide', textColor)}>
           Samenwerkingsverband

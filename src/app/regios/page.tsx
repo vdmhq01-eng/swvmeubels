@@ -1,25 +1,19 @@
 import Link from 'next/link';
 import { MarketingShell } from '@/components/marketing/MarketingShell';
+import { Hero, heroImages } from '@/components/marketing/Hero';
 import { Icon } from '@/components/ui/Icon';
 import { marketingRegions } from '@/lib/mock/marketing';
 
 export default function RegiosPage() {
   return (
     <MarketingShell activeHref="/regios">
-      <section className="bg-ink-900 text-white">
-        <div className="mx-auto max-w-6xl px-6 py-20">
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider">
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary-400" /> Regio&apos;s
-          </div>
-          <h1 className="mt-4 font-display text-4xl font-bold leading-tight sm:text-5xl">
-            Acht regio&apos;s, één Samenwerkingsverband<span className="text-primary-400">.</span>
-          </h1>
-          <p className="mt-5 max-w-2xl text-lg leading-relaxed text-white/85">
-            Elke regio heeft een eigen coördinator als vast aanspreekpunt. Klik op een regio voor
-            contactgegevens en lokale informatie.
-          </p>
-        </div>
-      </section>
+      <Hero
+        eyebrow="Regio's"
+        title="Acht regio's, één Samenwerkingsverband"
+        highlight="."
+        description="Elke regio heeft een eigen coördinator als vast aanspreekpunt. Klik op een regio voor contactgegevens en lokale informatie."
+        image={heroImages.regios}
+      />
 
       <section className="mx-auto max-w-6xl px-6 py-16">
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
