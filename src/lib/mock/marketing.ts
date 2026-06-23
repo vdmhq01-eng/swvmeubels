@@ -151,6 +151,64 @@ export const marketingRegions: MarketingRegion[] = [
   },
 ];
 
+export type StudentStory = {
+  name: string;
+  age: number;
+  city: string;
+  program: string;
+  year: string;
+  quote: string;
+  photo: string;
+  socials?: { tiktok?: string; instagram?: string };
+};
+
+export const studentStories: StudentStory[] = [
+  {
+    name: 'Jamie',
+    age: 19,
+    city: 'Groningen',
+    program: 'Interieurbouwer BBL 3',
+    year: 'Jaar 2',
+    quote: 'Beste keus ooit. Ik leer een vak én verdien gewoon m\'n eigen geld. Theorie op vrijdag, rest van de week in de werkplaats.',
+    photo: 'https://images.unsplash.com/photo-1556157382-97eda2d62296?auto=format&fit=crop&w=900&q=80',
+    socials: { tiktok: '@jamie.builds' },
+  },
+  {
+    name: 'Lisa',
+    age: 18,
+    city: 'Zwolle',
+    program: 'Meubelmaker BBL 2',
+    year: 'Jaar 1',
+    quote: 'Klas was niks voor mij. Hier doe ik echt iets met mijn handen. En aan het eind van de maand staat er gewoon salaris op mijn rekening.',
+    photo: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=900&q=80',
+    socials: { instagram: '@lisa.maakt' },
+  },
+  {
+    name: 'Mark',
+    age: 21,
+    city: 'Rotterdam',
+    program: 'Houtbewerker BBL 2',
+    year: 'Jaar 2',
+    quote: 'Van CNC tot maatwerk. Elke dag iets nieuws. Mijn werkbedrijf wil me na m\'n diploma vast in dienst nemen.',
+    photo: 'https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?auto=format&fit=crop&w=900&q=80',
+    socials: { tiktok: '@markwerkt' },
+  },
+];
+
+export type SocialPost = {
+  platform: 'tiktok' | 'instagram';
+  thumb: string;
+  caption: string;
+  likes: string;
+};
+
+export const socialPosts: SocialPost[] = [
+  { platform: 'tiktok', thumb: 'https://images.unsplash.com/photo-1611025437671-ae3acc7e4d34?auto=format&fit=crop&w=600&q=80', caption: 'Een dag op de werkplek 🔨', likes: '12.4k' },
+  { platform: 'instagram', thumb: 'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80', caption: 'Maatwerk kast af!', likes: '2.1k' },
+  { platform: 'tiktok', thumb: 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&w=600&q=80', caption: 'Verdien je eigen geld', likes: '8.7k' },
+  { platform: 'instagram', thumb: 'https://images.unsplash.com/photo-1568871453524-78fc36476b15?auto=format&fit=crop&w=600&q=80', caption: 'Praktijkdag in Twente', likes: '1.5k' },
+];
+
 export type NewsItem = {
   slug: string;
   title: string;

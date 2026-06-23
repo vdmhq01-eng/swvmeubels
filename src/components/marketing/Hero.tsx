@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
 type HeroImage = {
@@ -8,8 +7,7 @@ type HeroImage = {
 
 /**
  * Hero met B&W workshop foto + dark overlay in SWV-stijl.
- * Foto's komen van Unsplash (free for commercial use). In productie
- * vervang door eigen fotografie van SWV-werkplaatsen.
+ * Gebruikt plain <img> ipv next/image om Vercel image-optimization edge-cases te omzeilen.
  */
 export function Hero({
   eyebrow,
@@ -20,6 +18,7 @@ export function Hero({
   children,
   side,
   className,
+  sticker,
 }: {
   eyebrow?: string;
   title: string;
@@ -29,19 +28,19 @@ export function Hero({
   children?: React.ReactNode;
   side?: React.ReactNode;
   className?: string;
+  sticker?: React.ReactNode;
 }) {
   const img = image ?? defaultHeroImages[0];
   return (
     <section className={cn('relative overflow-hidden bg-ink-900 text-white', className)}>
-      <Image
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
         src={img.src}
         alt={img.alt}
-        fill
-        priority
-        className="object-cover opacity-35"
-        sizes="100vw"
+        className="absolute inset-0 h-full w-full object-cover opacity-40"
+        loading="eager"
       />
-      <div className="absolute inset-0 bg-gradient-to-b from-ink-900/60 via-ink-900/75 to-ink-900/95" />
+      <div className="absolute inset-0 bg-gradient-to-b from-ink-900/55 via-ink-900/70 to-ink-900/95" />
       <div className="relative mx-auto grid max-w-6xl gap-12 px-6 py-20 lg:grid-cols-12 lg:py-28">
         <div className="lg:col-span-7">
           {eyebrow ? (
@@ -50,7 +49,7 @@ export function Hero({
               {eyebrow}
             </div>
           ) : null}
-          <h1 className="mt-4 font-display text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
+          <h1 className="mt-4 font-display text-4xl font-bold leading-[1.02] tracking-tight sm:text-5xl lg:text-6xl">
             {title}
             {highlight ? <span className="block text-primary-400">{highlight}</span> : null}
           </h1>
@@ -59,8 +58,11 @@ export function Hero({
           ) : null}
           {children ? <div className="mt-8 flex flex-wrap gap-3">{children}</div> : null}
         </div>
-        {side ? (
-          <div className="hidden items-center lg:col-span-5 lg:flex">{side}</div>
+        {side ? <div className="hidden items-center lg:col-span-5 lg:flex">{side}</div> : null}
+        {sticker ? (
+          <div className="pointer-events-none absolute right-6 top-8 hidden md:block">
+            {sticker}
+          </div>
         ) : null}
       </div>
     </section>
