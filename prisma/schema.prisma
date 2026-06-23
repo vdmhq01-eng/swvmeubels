@@ -49,6 +49,8 @@ model User {
   tasksAssigned     Task[]              @relation("TaskAssignee")
   messagesFrom      Message[]           @relation("MsgFrom")
   messagesTo        Message[]           @relation("MsgTo")
+  assignedApplications Application[]    @relation("AssignedApplications")
+  notifications     Notification[]      @relation("UserNotifications")
 
   @@index([role])
   @@index([regionId])
@@ -68,13 +70,14 @@ model Session {
 }
 
 model Region {
-  id        String       @id @default(cuid())
-  code      String       @unique
-  name      String
-  users     User[]
-  students  Student[]
-  companies Company[]
+  id           String       @id @default(cuid())
+  code         String       @unique
+  name         String
+  users        User[]
+  students     Student[]
+  companies    Company[]
   coordinators Coordinator[]
+  applications Application[]
 }
 
 // =====================================================================
@@ -527,6 +530,61 @@ model AuditLog {
 
   @@index([actorUserId, at])
   @@index([objectType, objectId])
+}
+
+enum ApplicationStatus {
+  NIEUW
+  IN_BEHANDELING
+  TOEGEWEZEN
+  GEACCEPTEERD
+  AFGEWEZEN
+}
+
+model Application {
+  id                String            @id @default(cuid())
+  firstName         String
+  lastName          String
+  email             String
+  phone             String
+  postcode          String
+  applicantType     String            // 'Student' | 'Bedrijf' | 'Ouder / verzorger'
+  programInterest   String?
+  message           String?
+  status            ApplicationStatus @default(NIEUW)
+  assignedToId      String?
+  assignedTo        User?             @relation("AssignedApplications", fields: [assignedToId], references: [id])
+  regionId          String?
+  region            Region?           @relation(fields: [regionId], references: [id])
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  reviewedAt        DateTime?
+  notes             String?
+
+  @@index([status, createdAt])
+  @@index([assignedToId])
+}
+
+enum NotificationType {
+  APPLICATION
+  TIMESHEET
+  ABSENCE
+  TASK
+  MESSAGE
+  SYSTEM
+}
+
+model Notification {
+  id          String            @id @default(cuid())
+  userId      String
+  user        User              @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
+  type        NotificationType
+  title       String
+  body        String
+  href        String?
+  read        Boolean           @default(false)
+  createdAt   DateTime          @default(now())
+
+  @@index([userId, read, createdAt])
 }
 
 model SecurityLog {

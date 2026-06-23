@@ -50,6 +50,8 @@ export const navigation: Record<Role, NavItem[]> = {
   ],
   COORDINATOR: [
     { label: 'Dashboard', href: '/coordinator', icon: 'Home' },
+    { label: 'Mijn regio', href: '/coordinator/regio', icon: 'Activity' },
+    { label: 'Sollicitaties', href: '/coordinator/sollicitaties', icon: 'Bell' },
     { label: 'Studenten', href: '/coordinator/studenten', icon: 'Users' },
     { label: 'Urenoverzicht', href: '/coordinator/uren', icon: 'Clock' },
     { label: 'Goedkeuringen', href: '/coordinator/goedkeuringen', icon: 'Activity', badge: '3' },
