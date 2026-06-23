@@ -6,6 +6,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Badge, StatusDot } from '@/components/ui/Badge';
 import { Icon } from '@/components/ui/Icon';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { AppInstallBanner } from '@/components/portal/AppInstallBanner';
 import { getDemoSession } from '@/lib/data/session';
 import { getStudentDashboard } from '@/lib/data/dashboard';
 import { formatDate, formatHours, formatMoney } from '@/lib/utils';
@@ -45,6 +46,7 @@ export default async function StudentDashboardPage() {
         subtitle: 'Welkom terug in jouw persoonlijke omgeving.',
       }}
     >
+      <AppInstallBanner />
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           label="Vakantiedagen"
