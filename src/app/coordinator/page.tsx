@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Avatar } from '@/components/ui/Avatar';
 import { Icon } from '@/components/ui/Icon';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { AppInstallBanner } from '@/components/portal/AppInstallBanner';
 import { getDemoSession } from '@/lib/data/session';
 import { getCoordinatorDashboard } from '@/lib/data/dashboard';
 import { db } from '@/lib/db';
@@ -46,6 +47,7 @@ export default async function CoordinatorDashboardPage() {
         subtitle: `Overzicht van jouw regio ${coordinator?.region.name ?? ''}.`,
       }}
     >
+      <AppInstallBanner />
       <div className="grid grid-cols-2 gap-5 lg:grid-cols-4">
         <StatCard label="Studenten" value={totalStudents} hint="Actief" icon={<Icon.Users className="h-5 w-5" />} tone="wood" />
         <StatCard label="Ziekteverzuim" value={openVerzuim} hint="Open meldingen" icon={<Icon.Heart className="h-5 w-5" />} tone="rose" />

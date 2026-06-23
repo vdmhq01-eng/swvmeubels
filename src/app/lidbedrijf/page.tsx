@@ -6,6 +6,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Icon } from '@/components/ui/Icon';
 import { ApprovalActions } from '@/components/uren/ApprovalActions';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { AppInstallBanner } from '@/components/portal/AppInstallBanner';
 import { getDemoSession } from '@/lib/data/session';
 import { getCompanyDashboard } from '@/lib/data/dashboard';
 import { db } from '@/lib/db';
@@ -40,6 +41,7 @@ export default async function LidbedrijfDashboardPage() {
       userSubtitle={contact?.company.name ?? 'Lidbedrijf'}
       greeting={{ title: 'Dashboard', subtitle: 'Overzicht van jouw studenten en weekstaten.' }}
     >
+      <AppInstallBanner />
       <div className="grid grid-cols-2 gap-5 lg:grid-cols-4">
         <StatCard label="Weekstaten" value={pending.length} hint="Wachten op goedkeuring" icon={<Icon.Activity className="h-5 w-5" />} tone="amber" />
         <StatCard label="Studenten actief" value={studentCount} hint="Bij jouw bedrijf" icon={<Icon.Users className="h-5 w-5" />} tone="wood" />

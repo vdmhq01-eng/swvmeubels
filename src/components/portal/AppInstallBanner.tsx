@@ -4,15 +4,10 @@ import { useEffect, useState } from 'react';
 import { Icon } from '@/components/ui/Icon';
 import { useToast } from '@/components/ui/Toast';
 
-type InstallState = 'idle' | 'available' | 'ios' | 'installed';
-
-// Banner die studenten uitnodigt de PWA te installeren en push-notificaties
-// aan te zetten. Detecteert iOS (waar geen `beforeinstallprompt` event bestaat
-// en de installatie via "Deel → Zet op beginscherm" gaat). Onthoudt dismissal
-// in localStorage zodat hij niet steeds terugkomt.
+type InstallState = 'idle' | 'available' | 'ios' | 'android-other' | 'desktop' | 'installed';
 
 const DISMISS_KEY = 'swv-install-dismissed-at';
-const DISMISS_DAYS = 30;
+const DISMISS_DAYS = 14;
 
 declare global {
   interface WindowEventMap {
@@ -28,6 +23,7 @@ interface BeforeInstallPromptEvent extends Event {
 export function AppInstallBanner() {
   const { toast } = useToast();
   const [show, setShow] = useState(false);
+  const [showInstructions, setShowInstructions] = useState(false);
   const [installState, setInstallState] = useState<InstallState>('idle');
   const [notifGranted, setNotifGranted] = useState(false);
   const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null);
@@ -35,11 +31,18 @@ export function AppInstallBanner() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    // Bekijk of de gebruiker recent al heeft weggeklikt
+    // Register service worker (vereist voor PWA install prompt op Chrome/Edge)
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch((err) => {
+        console.warn('SW registratie mislukt', err);
+      });
+    }
+
+    // Recent gedismissed?
     const dismissedAt = Number(localStorage.getItem(DISMISS_KEY) ?? 0);
     const recentlyDismissed = dismissedAt && Date.now() - dismissedAt < DISMISS_DAYS * 86400_000;
 
-    // Is de app al geïnstalleerd? (standalone display mode)
+    // Standalone (al geïnstalleerd)?
     const isStandalone =
       window.matchMedia('(display-mode: standalone)').matches ||
       (window.navigator as { standalone?: boolean }).standalone === true;
@@ -49,30 +52,28 @@ export function AppInstallBanner() {
       return;
     }
 
-    // iOS Safari (geen beforeinstallprompt support)
-    const ua = window.navigator.userAgent;
-    const isIOS = /iPad|iPhone|iPod/.test(ua) && !('MSStream' in window);
-
-    // Notification status
     if ('Notification' in window) {
       setNotifGranted(Notification.permission === 'granted');
     }
 
-    if (isIOS) {
-      setInstallState('ios');
-    }
+    // Detecteer platform
+    const ua = window.navigator.userAgent;
+    const isIOS = /iPad|iPhone|iPod/.test(ua);
+    const isAndroid = /Android/i.test(ua);
+    const isMobile = isIOS || isAndroid;
+
+    if (isIOS) setInstallState('ios');
+    else if (isAndroid) setInstallState('android-other');
+    else setInstallState('desktop');
 
     function onBeforeInstall(e: BeforeInstallPromptEvent) {
       e.preventDefault();
       setDeferred(e);
       setInstallState('available');
     }
-
     window.addEventListener('beforeinstallprompt', onBeforeInstall);
 
-    if (!recentlyDismissed) {
-      setShow(true);
-    }
+    if (!recentlyDismissed) setShow(true);
 
     return () => window.removeEventListener('beforeinstallprompt', onBeforeInstall);
   }, []);
@@ -86,19 +87,9 @@ export function AppInstallBanner() {
         setShow(false);
       }
       setDeferred(null);
-    } else if (installState === 'ios') {
-      toast({
-        variant: 'info',
-        title: 'Voeg toe aan beginscherm',
-        description: 'Tik op het Delen-icoon onderaan en kies "Zet op beginscherm".',
-      });
-    } else {
-      toast({
-        variant: 'info',
-        title: 'Installeren niet beschikbaar',
-        description: 'Open de site in Chrome of Safari op je telefoon om te installeren.',
-      });
+      return;
     }
+    setShowInstructions(true);
   }
 
   async function handleNotifications() {
@@ -111,10 +102,11 @@ export function AppInstallBanner() {
       setNotifGranted(true);
       new Notification('SWV Meubel', {
         body: 'Meldingen staan aan. Je ontvangt updates over weekstaten, ziekmeldingen en planning.',
+        icon: '/icon.svg',
       });
       toast({ variant: 'success', title: 'Meldingen aan', description: 'Je ontvangt voortaan push-meldingen.' });
     } else if (result === 'denied') {
-      toast({ variant: 'error', title: 'Meldingen geblokkeerd', description: 'Zet meldingen aan in je browserinstellingen.' });
+      toast({ variant: 'error', title: 'Geblokkeerd', description: 'Zet meldingen aan in je browserinstellingen.' });
     }
   }
 
@@ -126,48 +118,105 @@ export function AppInstallBanner() {
   if (!show || installState === 'installed') return null;
 
   return (
-    <div className="mb-6 overflow-hidden rounded-2xl border border-primary-200 bg-gradient-to-br from-primary-50 to-bone-50 shadow-card">
-      <div className="grid grid-cols-1 gap-4 p-5 md:grid-cols-[auto_1fr_auto] md:items-center md:gap-6">
-        <div className="grid h-12 w-12 shrink-0 place-items-center rounded-md bg-primary-500 text-white shadow-soft">
-          <PhoneIcon className="h-6 w-6" />
-        </div>
-
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
-            <h3 className="font-display text-base font-bold text-ink-900">
-              Installeer de SWV Meubel app
-            </h3>
-            <span className="badge-primary">Aanbevolen</span>
+    <>
+      <div className="mb-6 overflow-hidden rounded-2xl border border-primary-200 bg-gradient-to-br from-primary-50 to-bone-50 shadow-card">
+        <div className="grid grid-cols-1 gap-4 p-5 md:grid-cols-[auto_1fr_auto] md:items-center md:gap-6">
+          <div className="grid h-12 w-12 shrink-0 place-items-center rounded-md bg-primary-500 text-white shadow-soft">
+            <PhoneIcon className="h-6 w-6" />
           </div>
-          <p className="mt-1 text-sm leading-relaxed text-ink-600">
-            Krijg meldingen op je telefoon bij ziekmeldingen, weekstaten en planning. De app
-            werkt offline en je kunt sneller uren invullen.
-          </p>
-        </div>
 
-        <div className="flex flex-wrap items-center gap-2 md:flex-nowrap">
-          <button onClick={handleInstall} className="btn-primary">
-            <Icon.Upload className="h-4 w-4" />
-            {installState === 'ios' ? 'Hoe?' : 'Installeer app'}
-          </button>
-          <button
-            onClick={handleNotifications}
-            disabled={notifGranted}
-            className="btn-secondary disabled:opacity-60"
-          >
-            <Icon.Bell className="h-4 w-4" />
-            {notifGranted ? 'Meldingen aan' : 'Meldingen aan'}
-          </button>
-          <button
-            onClick={dismiss}
-            aria-label="Sluit melding"
-            className="grid h-9 w-9 place-items-center rounded-xl text-ink-500 hover:bg-bone-100"
-          >
-            <Icon.X className="h-4 w-4" />
-          </button>
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="font-display text-base font-bold text-ink-900">
+                Installeer de SWV Meubel app
+              </h3>
+              <span className="badge-primary">Aanbevolen</span>
+            </div>
+            <p className="mt-1 text-sm leading-relaxed text-ink-600">
+              Krijg meldingen op je telefoon bij weekstaten, ziekmeldingen en planning. De app werkt
+              offline en je vult uren sneller in.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2 md:flex-nowrap">
+            <button onClick={handleInstall} className="btn-primary">
+              <Icon.Upload className="h-4 w-4" />
+              {installState === 'available' ? 'Installeer app' : 'Hoe installeren?'}
+            </button>
+            <button
+              onClick={handleNotifications}
+              disabled={notifGranted}
+              className="btn-secondary disabled:opacity-60"
+            >
+              <Icon.Bell className="h-4 w-4" />
+              {notifGranted ? 'Meldingen aan' : 'Meldingen aan'}
+            </button>
+            <button
+              onClick={dismiss}
+              aria-label="Sluit melding"
+              className="grid h-9 w-9 place-items-center rounded-xl text-ink-500 hover:bg-bone-100"
+            >
+              <Icon.X className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+
+      {showInstructions ? (
+        <div
+          className="fixed inset-0 z-50 grid place-items-center bg-ink-900/60 p-4 backdrop-blur-sm"
+          onClick={() => setShowInstructions(false)}
+        >
+          <div
+            className="max-w-md rounded-3xl bg-white p-6 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="grid h-10 w-10 place-items-center rounded-md bg-primary-500 text-white">
+                  <PhoneIcon className="h-5 w-5" />
+                </div>
+                <h3 className="font-display text-lg font-bold">Installeer de SWV app</h3>
+              </div>
+              <button onClick={() => setShowInstructions(false)} className="rounded-lg p-1 hover:bg-bone-100">
+                <Icon.X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {installState === 'ios' ? (
+              <ol className="mt-5 list-decimal space-y-3 pl-5 text-sm text-ink-700">
+                <li>Tik op de <strong>Delen-knop</strong> onderin je Safari-browser (vierkant met pijl omhoog).</li>
+                <li>Scroll omlaag en kies <strong>&ldquo;Zet op beginscherm&rdquo;</strong>.</li>
+                <li>Tik op <strong>Voeg toe</strong>.</li>
+                <li>Open de SWV-app voortaan vanaf je beginscherm.</li>
+              </ol>
+            ) : installState === 'android-other' ? (
+              <ol className="mt-5 list-decimal space-y-3 pl-5 text-sm text-ink-700">
+                <li>Tik op het <strong>menu (drie puntjes)</strong> rechtsboven in je browser.</li>
+                <li>Kies <strong>&ldquo;App installeren&rdquo;</strong> of <strong>&ldquo;Toevoegen aan startscherm&rdquo;</strong>.</li>
+                <li>Bevestig met <strong>Installeren</strong>.</li>
+                <li>De app verschijnt op je startscherm — open vanaf daar.</li>
+              </ol>
+            ) : (
+              <ol className="mt-5 list-decimal space-y-3 pl-5 text-sm text-ink-700">
+                <li>Klik op het <strong>installatie-icoontje</strong> rechts in de adresbalk (computer-met-pijl).</li>
+                <li>Klik op <strong>&ldquo;Installeren&rdquo;</strong>.</li>
+                <li>De SWV app opent in een eigen venster.</li>
+                <li>Niet zichtbaar? Open in Chrome of Edge.</li>
+              </ol>
+            )}
+
+            <div className="mt-5 rounded-xl border border-bone-200 bg-bone-50 p-3 text-xs text-ink-600">
+              Werkt het niet? Refresh de pagina eens of bezoek het portaal een paar keer — browsers tonen de installatie-optie pas na voldoende gebruik.
+            </div>
+
+            <button onClick={() => setShowInstructions(false)} className="btn-primary mt-4 w-full">
+              Begrepen
+            </button>
+          </div>
+        </div>
+      ) : null}
+    </>
   );
 }
 
