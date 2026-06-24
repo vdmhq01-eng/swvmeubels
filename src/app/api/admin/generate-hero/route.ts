@@ -80,6 +80,46 @@ const PROMPTS = {
     },
   ],
 
+  // 6 news article thumbnails — landscape 16:10 voor news cards
+  news: [
+    {
+      key: 'news-opendag',
+      prompt:
+        'cinematic photo of a busy open day at a Dutch furniture workshop with visitors looking at student woodwork projects, warm welcoming atmosphere, multiple people engaged, professional event photography, 16:9 landscape composition, hyperrealistic',
+      size: 'landscape_16_9' as const,
+    },
+    {
+      key: 'news-diploma',
+      prompt:
+        'cinematic photo of a proud Dutch BBL student receiving wooden craft diploma certificate, formal warm setting, soft lighting, professional event photography, smiling moment of accomplishment, 16:9 landscape composition, hyperrealistic',
+      size: 'landscape_16_9' as const,
+    },
+    {
+      key: 'news-verhaal',
+      prompt:
+        'cinematic photo of a young Dutch apprentice woodworker in workshop holding a finished wooden piece proudly, warm storytelling atmosphere, documentary photography style, 16:9 landscape composition, hyperrealistic, candid moment',
+      size: 'landscape_16_9' as const,
+    },
+    {
+      key: 'news-regio',
+      prompt:
+        'cinematic photo of a Dutch furniture workshop facade with sign, in a rural town setting, warm golden hour lighting, professional photography, 16:9 landscape composition, hyperrealistic, sense of place',
+      size: 'landscape_16_9' as const,
+    },
+    {
+      key: 'news-praktijkdag',
+      prompt:
+        'cinematic photo of multiple young Dutch BBL students working together in a vocational school workshop, instructor in background, bright workshop lighting, documentary photography, 16:9 landscape composition, hyperrealistic, collaborative atmosphere',
+      size: 'landscape_16_9' as const,
+    },
+    {
+      key: 'news-coordinator',
+      prompt:
+        'cinematic professional portrait photo of a friendly Dutch woman in her 30s, smiling warmly, in a bright modern office setting, professional headshot style, 16:9 landscape composition, hyperrealistic, approachable expression',
+      size: 'landscape_16_9' as const,
+    },
+  ],
+
   // 4 vierkante tiles voor 'Vakmanschap in beeld' strook op homepage
   // Worden in B&W getoond met hover-naar-kleur effect
   tiles: [
@@ -177,7 +217,7 @@ export async function GET(req: Request) {
     type Prompt = { key: string; prompt: string; size: 'portrait_16_9' | 'landscape_16_9' | 'portrait_4_3' };
     let prompts: Prompt[] = [];
     if (set === 'all') {
-      prompts = [...PROMPTS.panels, ...PROMPTS.home, ...PROMPTS.studenten, ...PROMPTS.bedrijven, ...PROMPTS.solliciteren, ...PROMPTS.verhalen, ...PROMPTS.social, ...PROMPTS.tiles];
+      prompts = [...PROMPTS.panels, ...PROMPTS.home, ...PROMPTS.studenten, ...PROMPTS.bedrijven, ...PROMPTS.solliciteren, ...PROMPTS.verhalen, ...PROMPTS.social, ...PROMPTS.tiles, ...PROMPTS.news];
     } else if (set in PROMPTS) {
       prompts = PROMPTS[set as keyof typeof PROMPTS] as Prompt[];
     } else {
