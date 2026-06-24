@@ -29,11 +29,6 @@ import type {
   Role as RoleType,
 } from '@prisma/client';
 
-/**
- * Bulk seed endpoint. Trigger eenmalig via:
- *   GET /api/admin/seed?key=<SEED_KEY>
- * Productie: zet SEED_KEY env var. Endpoint weigert zonder key match.
- */
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
@@ -59,131 +54,132 @@ export async function GET(req: Request) {
   }
 
   const log: string[] = [];
+  const t0 = Date.now();
+
   try {
-    for (const r of regions) {
-      await db.region.upsert({ where: { id: r.id }, update: { name: r.name, code: r.code }, create: r });
-    }
-    log.push(`${regions.length} regio's`);
+    // 1. Delete bestaande data in juiste volgorde (FK dependencies)
+    await db.$transaction([
+      db.timeEntry.deleteMany({}),
+      db.notification.deleteMany({}),
+      db.application.deleteMany({}),
+      db.securityLog.deleteMany({}),
+      db.syncLog.deleteMany({}),
+      db.auditLog.deleteMany({}),
+      db.task.deleteMany({}),
+      db.message.deleteMany({}),
+      db.document.deleteMany({}),
+      db.planningItem.deleteMany({}),
+      db.absence.deleteMany({}),
+      db.holidayBalance.deleteMany({}),
+      db.timesheet.deleteMany({}),
+      db.contract.deleteMany({}),
+      db.knowledgeArticle.deleteMany({}),
+      db.faqItem.deleteMany({}),
+      db.companyContact.deleteMany({}),
+      db.student.deleteMany({}),
+      db.coordinator.deleteMany({}),
+      db.company.deleteMany({}),
+      db.educationProgram.deleteMany({}),
+      db.integration.deleteMany({}),
+      db.user.deleteMany({}),
+      db.region.deleteMany({}),
+    ]);
+    log.push('cleared');
 
-    for (const p of programs) {
-      await db.educationProgram.upsert({
-        where: { id: p.id },
-        update: { name: p.name, level: levelMap[p.level], durationMonths: p.durationMonths },
-        create: { id: p.id, name: p.name, level: levelMap[p.level], durationMonths: p.durationMonths },
-      });
-    }
-    log.push(`${programs.length} opleidingen`);
+    // 2. Bulk insert lookup tables in parallel
+    await Promise.all([
+      db.region.createMany({ data: regions.map((r) => ({ id: r.id, code: r.code, name: r.name })) }),
+      db.educationProgram.createMany({
+        data: programs.map((p) => ({ id: p.id, name: p.name, level: levelMap[p.level], durationMonths: p.durationMonths })),
+      }),
+      db.integration.createMany({
+        data: integrations.map((i) => ({
+          key: i.key as IntegrationKeyType,
+          name: i.name,
+          status: i.status,
+          webhookEnabled: i.webhookEnabled,
+          scopes: i.scope,
+          lastSyncAt: i.lastSyncAt ? new Date(i.lastSyncAt) : null,
+          nextSyncAt: i.nextSyncAt ? new Date(i.nextSyncAt) : null,
+        })),
+      }),
+    ]);
+    log.push(`${regions.length} regio's, ${programs.length} opleidingen, ${integrations.length} integraties`);
 
-    for (const u of allUsers) {
-      await db.user.upsert({
-        where: { id: u.id },
-        update: {
-          email: u.email,
-          name: u.name,
-          role: u.role as RoleType,
-          twoFactorEnabled: u.twoFactorEnabled ?? false,
-          regionId: u.regionId,
-          lastLoginAt: u.lastLoginAt ? new Date(u.lastLoginAt) : null,
-        },
-        create: {
-          id: u.id,
-          email: u.email,
-          name: u.name,
-          role: u.role as RoleType,
-          twoFactorEnabled: u.twoFactorEnabled ?? false,
-          regionId: u.regionId,
-          lastLoginAt: u.lastLoginAt ? new Date(u.lastLoginAt) : null,
-          createdAt: new Date(u.createdAt),
-        },
-      });
-    }
+    // 3. Users (alle in één call)
+    await db.user.createMany({
+      data: allUsers.map((u) => ({
+        id: u.id,
+        email: u.email,
+        name: u.name,
+        role: u.role as RoleType,
+        twoFactorEnabled: u.twoFactorEnabled ?? false,
+        regionId: u.regionId,
+        lastLoginAt: u.lastLoginAt ? new Date(u.lastLoginAt) : null,
+        createdAt: new Date(u.createdAt),
+      })),
+    });
     log.push(`${allUsers.length} users`);
 
-    for (const c of coordinators) {
-      const userId = `user-coord-${c.id.replace('coord-', '')}`;
-      await db.coordinator.upsert({
-        where: { id: c.id },
-        update: { userId, regionId: c.regionId },
-        create: { id: c.id, userId, regionId: c.regionId },
-      });
-    }
-    log.push(`${coordinators.length} coördinator-profielen`);
+    // 4. Student-users (apart van allUsers in mock data)
+    await db.user.createMany({
+      data: students.map((s) => ({
+        id: `user-stu-${s.id.replace('stu-', '')}`,
+        email: s.email,
+        name: s.name,
+        role: 'STUDENT' as RoleType,
+        regionId: s.regionId,
+      })),
+      skipDuplicates: true,
+    });
 
-    for (const c of companies) {
-      const regionId = regions.find((r) => r.name === c.region)?.id ?? 'reg-noord';
-      await db.company.upsert({
-        where: { id: c.id },
-        update: { name: c.name, regionId, membership: c.membership },
-        create: { id: c.id, name: c.name, regionId, membership: c.membership },
-      });
-    }
-    log.push(`${companies.length} lidbedrijven`);
+    // 5. Companies + coordinators + students parallel
+    await Promise.all([
+      db.coordinator.createMany({
+        data: coordinators.map((c) => ({ id: c.id, userId: `user-coord-${c.id.replace('coord-', '')}`, regionId: c.regionId })),
+      }),
+      db.company.createMany({
+        data: companies.map((c) => ({
+          id: c.id,
+          name: c.name,
+          regionId: regions.find((r) => r.name === c.region)?.id ?? 'reg-noord',
+          membership: c.membership,
+        })),
+      }),
+    ]);
+    log.push(`${coordinators.length} coördinator-profielen, ${companies.length} lidbedrijven`);
 
-    const contactMap = [
-      { companyId: 'comp-001', userId: 'user-bedr-001' },
-      { companyId: 'comp-002', userId: 'user-bedr-002' },
-      { companyId: 'comp-003', userId: 'user-bedr-003' },
-    ];
-    for (const cc of contactMap) {
-      await db.companyContact.upsert({
-        where: { companyId_userId: cc },
-        update: { role: 'Praktijkopleider', primary: true },
-        create: { ...cc, role: 'Praktijkopleider', primary: true },
-      });
-    }
-
-    for (const s of students) {
-      const userId = `user-stu-${s.id.replace('stu-', '')}`;
-      await db.user.upsert({
-        where: { id: userId },
-        update: {},
-        create: { id: userId, email: s.email, name: s.name, role: 'STUDENT' as RoleType, regionId: s.regionId },
-      });
-      await db.student.upsert({
-        where: { id: s.id },
-        update: {
-          externalId: s.externalId,
-          cleverdeskId: s.cleverdeskId,
-          userId,
-          regionId: s.regionId,
-          companyId: s.companyId,
-          coordinatorId: s.coordinatorId,
-          programId: s.programId,
-          yearOfStudy: s.yearOfStudy,
-          startDate: new Date(s.startDate),
-          expectedDiplomaDate: s.expectedDiplomaDate ? new Date(s.expectedDiplomaDate) : null,
-          signal: s.signal,
-        },
-        create: {
-          id: s.id,
-          externalId: s.externalId,
-          cleverdeskId: s.cleverdeskId,
-          userId,
-          regionId: s.regionId,
-          companyId: s.companyId,
-          coordinatorId: s.coordinatorId,
-          programId: s.programId,
-          yearOfStudy: s.yearOfStudy,
-          startDate: new Date(s.startDate),
-          expectedDiplomaDate: s.expectedDiplomaDate ? new Date(s.expectedDiplomaDate) : null,
-          signal: s.signal,
-        },
-      });
-    }
+    await db.student.createMany({
+      data: students.map((s) => ({
+        id: s.id,
+        externalId: s.externalId,
+        cleverdeskId: s.cleverdeskId,
+        userId: `user-stu-${s.id.replace('stu-', '')}`,
+        regionId: s.regionId,
+        companyId: s.companyId,
+        coordinatorId: s.coordinatorId,
+        programId: s.programId,
+        yearOfStudy: s.yearOfStudy,
+        startDate: new Date(s.startDate),
+        expectedDiplomaDate: s.expectedDiplomaDate ? new Date(s.expectedDiplomaDate) : null,
+        signal: s.signal,
+      })),
+    });
     log.push(`${students.length} studenten`);
 
-    for (const c of contracts) {
-      await db.contract.upsert({
-        where: { id: c.id },
-        update: {
-          studentId: c.studentId,
-          companyId: c.companyId,
-          startDate: new Date(c.startDate),
-          endDate: new Date(c.endDate),
-          hoursPerWeek: c.hoursPerWeek,
-          status: contractStatusMap[c.status],
-        },
-        create: {
+    // 6. Company contacts
+    await db.companyContact.createMany({
+      data: [
+        { companyId: 'comp-001', userId: 'user-bedr-001', role: 'Praktijkopleider', primary: true },
+        { companyId: 'comp-002', userId: 'user-bedr-002', role: 'Praktijkopleider', primary: true },
+        { companyId: 'comp-003', userId: 'user-bedr-003', role: 'Praktijkopleider', primary: true },
+      ],
+    });
+
+    // 7. Contracts, absences, holidayBalances parallel
+    await Promise.all([
+      db.contract.createMany({
+        data: contracts.map((c) => ({
           id: c.id,
           studentId: c.studentId,
           companyId: c.companyId,
@@ -191,23 +187,10 @@ export async function GET(req: Request) {
           endDate: new Date(c.endDate),
           hoursPerWeek: c.hoursPerWeek,
           status: contractStatusMap[c.status],
-        },
-      });
-    }
-    log.push(`${contracts.length} contracten`);
-
-    for (const a of absences) {
-      await db.absence.upsert({
-        where: { id: a.id },
-        update: {
-          studentId: a.studentId,
-          type: a.type as AbsenceTypeType,
-          startDate: new Date(a.startDate),
-          endDate: a.endDate ? new Date(a.endDate) : null,
-          reportedAt: new Date(a.reportedAt),
-          closedAt: a.status === 'GESLOTEN' && a.endDate ? new Date(a.endDate) : null,
-        },
-        create: {
+        })),
+      }),
+      db.absence.createMany({
+        data: absences.map((a) => ({
           id: a.id,
           studentId: a.studentId,
           type: a.type as AbsenceTypeType,
@@ -215,117 +198,177 @@ export async function GET(req: Request) {
           endDate: a.endDate ? new Date(a.endDate) : null,
           reportedAt: new Date(a.reportedAt),
           closedAt: a.status === 'GESLOTEN' && a.endDate ? new Date(a.endDate) : null,
-        },
-      });
-    }
-    log.push(`${absences.length} verzuim meldingen`);
+        })),
+      }),
+      db.holidayBalance.createMany({
+        data: holidayBalances.map((h) => ({
+          studentId: h.studentId,
+          totalDays: h.totalDays,
+          usedDays: h.usedDays,
+          remainingDays: h.remainingDays,
+          holidayMoneyCents: h.holidayMoneyCents,
+          lastUpdated: new Date(h.lastUpdated),
+        })),
+      }),
+    ]);
+    log.push(`${contracts.length} contracten, ${absences.length} verzuim, ${holidayBalances.length} vakanties`);
 
-    for (const h of holidayBalances) {
-      await db.holidayBalance.upsert({
-        where: { studentId: h.studentId },
-        update: { totalDays: h.totalDays, usedDays: h.usedDays, remainingDays: h.remainingDays, holidayMoneyCents: h.holidayMoneyCents, lastUpdated: new Date(h.lastUpdated) },
-        create: { studentId: h.studentId, totalDays: h.totalDays, usedDays: h.usedDays, remainingDays: h.remainingDays, holidayMoneyCents: h.holidayMoneyCents, lastUpdated: new Date(h.lastUpdated) },
-      });
-    }
-
+    // 8. Timesheets eerst (parent), dan entries
     const allTs = [currentWeekTimesheet, ...previousTimesheets, ...pendingApprovals.map((p) => p.timesheet)];
-    // Verwijder ALLE entries eerst om id-collisions tussen timesheets te voorkomen
-    await db.timeEntry.deleteMany({});
-    for (const t of allTs) {
-      await db.timesheet.upsert({
-        where: { id: t.id },
-        update: { studentId: t.studentId, weekNumber: t.weekNumber, year: t.year, weekStartDate: new Date(t.weekStartDate), status: t.status as TimesheetStatusType, submittedAt: t.submittedAt ? new Date(t.submittedAt) : null, rejectionReason: t.rejectionReason ?? null },
-        create: { id: t.id, studentId: t.studentId, weekNumber: t.weekNumber, year: t.year, weekStartDate: new Date(t.weekStartDate), status: t.status as TimesheetStatusType, submittedAt: t.submittedAt ? new Date(t.submittedAt) : null, rejectionReason: t.rejectionReason ?? null },
-      });
-      for (const e of t.entries) {
-        // Geen expliciete id — Prisma cuid() voorkomt collisions
-        await db.timeEntry.create({ data: { timesheetId: t.id, date: new Date(e.date), type: e.type as TimeEntryTypeType, hours: e.hours, note: e.note ?? null } });
-      }
-    }
+    await db.timesheet.createMany({
+      data: allTs.map((t) => ({
+        id: t.id,
+        studentId: t.studentId,
+        weekNumber: t.weekNumber,
+        year: t.year,
+        weekStartDate: new Date(t.weekStartDate),
+        status: t.status as TimesheetStatusType,
+        submittedAt: t.submittedAt ? new Date(t.submittedAt) : null,
+        rejectionReason: t.rejectionReason ?? null,
+      })),
+      skipDuplicates: true,
+    });
+    await db.timeEntry.createMany({
+      data: allTs.flatMap((t) =>
+        t.entries.map((e) => ({
+          timesheetId: t.id,
+          date: new Date(e.date),
+          type: e.type as TimeEntryTypeType,
+          hours: e.hours,
+          note: e.note ?? null,
+        })),
+      ),
+    });
     log.push(`${allTs.length} weekstaten`);
 
-    for (const d of documents) {
-      await db.document.upsert({
-        where: { id: d.id },
-        update: { studentId: d.studentId ?? null, companyId: d.companyId ?? null, category: d.category as DocumentCategoryType, fileName: d.fileName, mimeType: d.mimeType, sizeBytes: d.sizeBytes, uploadedByUserId: d.uploadedByUserId, retentionUntil: new Date(d.retentionUntil) },
-        create: { id: d.id, studentId: d.studentId ?? null, companyId: d.companyId ?? null, category: d.category as DocumentCategoryType, fileName: d.fileName, storageKey: `documents/${d.category.toLowerCase()}/${d.id}`, mimeType: d.mimeType, sizeBytes: d.sizeBytes, checksum: 'seed-placeholder', encryptionKeyId: 'kms-default', uploadedByUserId: d.uploadedByUserId, uploadedAt: new Date(d.uploadedAt), retentionUntil: new Date(d.retentionUntil) },
-      });
-    }
-    log.push(`${documents.length} documenten`);
+    // 9. Documents, planning, tasks, messages parallel
+    await Promise.all([
+      db.document.createMany({
+        data: documents.map((d) => ({
+          id: d.id,
+          studentId: d.studentId ?? null,
+          companyId: d.companyId ?? null,
+          category: d.category as DocumentCategoryType,
+          fileName: d.fileName,
+          storageKey: `documents/${d.category.toLowerCase()}/${d.id}`,
+          mimeType: d.mimeType,
+          sizeBytes: d.sizeBytes,
+          checksum: 'seed-placeholder',
+          encryptionKeyId: 'kms-default',
+          uploadedByUserId: d.uploadedByUserId,
+          uploadedAt: new Date(d.uploadedAt),
+          retentionUntil: new Date(d.retentionUntil),
+        })),
+      }),
+      db.planningItem.createMany({
+        data: planningItems.map((p) => ({
+          id: p.id,
+          title: p.title,
+          type: p.type as PlanningTypeType,
+          startDate: new Date(p.startDate),
+          endDate: p.endDate ? new Date(p.endDate) : null,
+          regionId: p.regionId ?? null,
+          programId: p.programId ?? null,
+          status: p.status as PlanningStatusType,
+        })),
+      }),
+      db.task.createMany({
+        data: tasks.map((t) => ({
+          id: t.id,
+          title: t.title,
+          studentId: t.studentId ?? null,
+          dueDate: t.dueDate ? new Date(t.dueDate) : null,
+          status: t.status as TaskStatusType,
+          priority: t.priority as TaskPriorityType,
+        })),
+      }),
+      db.message.createMany({
+        data: messages
+          .filter((m) => m.fromUserId !== 'user-system')
+          .map((m) => ({
+            id: m.id,
+            fromUserId: m.fromUserId,
+            toUserId: m.toUserId,
+            subject: m.subject,
+            body: m.preview,
+            sentAt: new Date(m.sentAt),
+            readAt: m.read ? new Date(m.sentAt) : null,
+          })),
+      }),
+    ]);
+    log.push(`${documents.length} docs, ${planningItems.length} planning, ${tasks.length} taken, ${messages.length} berichten`);
 
-    for (const p of planningItems) {
-      await db.planningItem.upsert({
-        where: { id: p.id },
-        update: { title: p.title, type: p.type as PlanningTypeType, startDate: new Date(p.startDate), endDate: p.endDate ? new Date(p.endDate) : null, regionId: p.regionId ?? null, programId: p.programId ?? null, status: p.status as PlanningStatusType },
-        create: { id: p.id, title: p.title, type: p.type as PlanningTypeType, startDate: new Date(p.startDate), endDate: p.endDate ? new Date(p.endDate) : null, regionId: p.regionId ?? null, programId: p.programId ?? null, status: p.status as PlanningStatusType },
-      });
-    }
-    log.push(`${planningItems.length} planningsitems`);
+    // 10. Content + logs parallel
+    await Promise.all([
+      db.faqItem.createMany({
+        data: faqItems.map((f) => ({
+          id: f.id,
+          question: f.question,
+          answer: 'Antwoord wordt later geredigeerd.',
+          category: f.category,
+          roles: f.roles as RoleType[],
+          status: f.status as PublishStatusType,
+          order: f.order,
+          updatedBy: f.updatedByName,
+        })),
+      }),
+      db.knowledgeArticle.createMany({
+        data: knowledgeArticles.map((a) => ({
+          id: a.id,
+          title: a.title,
+          body: a.excerpt,
+          category: a.category,
+          tags: a.tags,
+          roles: a.roles as RoleType[],
+          status: a.status as PublishStatusType,
+          version: a.version,
+          updatedBy: a.updatedByName,
+        })),
+      }),
+      db.syncLog.createMany({
+        data: recentSyncLogs.map((l) => ({
+          id: l.id,
+          integration: l.integration as IntegrationKeyType,
+          direction: l.direction,
+          objectType: l.object,
+          externalId: l.externalId ?? null,
+          status: l.status as SyncStatusType,
+          startedAt: new Date(l.startedAt),
+          durationMs: l.durationMs,
+          message: l.message ?? null,
+        })),
+      }),
+      db.auditLog.createMany({
+        data: [...recentAuditLogs, ...extraAuditLogs].map((a) => ({
+          id: a.id,
+          at: new Date(a.at),
+          actorUserId: a.actorUserId,
+          actorRole: a.actorRole as RoleType,
+          action: a.action,
+          objectType: a.objectType,
+          objectId: a.objectId,
+          ip: a.ip ?? null,
+          userAgent: a.userAgent ?? null,
+          context: a.context ?? undefined,
+        })),
+      }),
+      db.securityLog.createMany({
+        data: securityLogs.map((s) => ({
+          id: s.id,
+          at: new Date(s.at),
+          severity: s.severity,
+          event: s.event,
+          userId: s.userId ?? null,
+          ip: s.ip ?? null,
+          message: s.message,
+        })),
+      }),
+    ]);
+    log.push(`logs + content gesynced`);
 
-    for (const t of tasks) {
-      await db.task.upsert({
-        where: { id: t.id },
-        update: { title: t.title, studentId: t.studentId ?? null, dueDate: t.dueDate ? new Date(t.dueDate) : null, status: t.status as TaskStatusType, priority: t.priority as TaskPriorityType },
-        create: { id: t.id, title: t.title, studentId: t.studentId ?? null, dueDate: t.dueDate ? new Date(t.dueDate) : null, status: t.status as TaskStatusType, priority: t.priority as TaskPriorityType },
-      });
-    }
-    log.push(`${tasks.length} taken`);
-
-    for (const m of messages) {
-      if (m.fromUserId === 'user-system') continue;
-      await db.message.upsert({
-        where: { id: m.id },
-        update: { fromUserId: m.fromUserId, toUserId: m.toUserId, subject: m.subject, body: m.preview, sentAt: new Date(m.sentAt), readAt: m.read ? new Date(m.sentAt) : null },
-        create: { id: m.id, fromUserId: m.fromUserId, toUserId: m.toUserId, subject: m.subject, body: m.preview, sentAt: new Date(m.sentAt), readAt: m.read ? new Date(m.sentAt) : null },
-      });
-    }
-    log.push(`${messages.length} berichten`);
-
-    for (const f of faqItems) {
-      await db.faqItem.upsert({
-        where: { id: f.id },
-        update: { question: f.question, answer: 'Antwoord wordt later geredigeerd.', category: f.category, roles: f.roles as RoleType[], status: f.status as PublishStatusType, order: f.order, updatedBy: f.updatedByName },
-        create: { id: f.id, question: f.question, answer: 'Antwoord wordt later geredigeerd.', category: f.category, roles: f.roles as RoleType[], status: f.status as PublishStatusType, order: f.order, updatedBy: f.updatedByName },
-      });
-    }
-    log.push(`${faqItems.length} FAQ items`);
-
-    for (const a of knowledgeArticles) {
-      await db.knowledgeArticle.upsert({
-        where: { id: a.id },
-        update: { title: a.title, body: a.excerpt, category: a.category, tags: a.tags, roles: a.roles as RoleType[], status: a.status as PublishStatusType, version: a.version, updatedBy: a.updatedByName },
-        create: { id: a.id, title: a.title, body: a.excerpt, category: a.category, tags: a.tags, roles: a.roles as RoleType[], status: a.status as PublishStatusType, version: a.version, updatedBy: a.updatedByName },
-      });
-    }
-    log.push(`${knowledgeArticles.length} kennisartikelen`);
-
-    for (const i of integrations) {
-      await db.integration.upsert({
-        where: { key: i.key as IntegrationKeyType },
-        update: { name: i.name, status: i.status, webhookEnabled: i.webhookEnabled, scopes: i.scope, lastSyncAt: i.lastSyncAt ? new Date(i.lastSyncAt) : null, nextSyncAt: i.nextSyncAt ? new Date(i.nextSyncAt) : null },
-        create: { key: i.key as IntegrationKeyType, name: i.name, status: i.status, webhookEnabled: i.webhookEnabled, scopes: i.scope, lastSyncAt: i.lastSyncAt ? new Date(i.lastSyncAt) : null, nextSyncAt: i.nextSyncAt ? new Date(i.nextSyncAt) : null },
-      });
-    }
-
-    await db.syncLog.deleteMany({});
-    for (const l of recentSyncLogs) {
-      await db.syncLog.create({ data: { id: l.id, integration: l.integration as IntegrationKeyType, direction: l.direction, objectType: l.object, externalId: l.externalId ?? null, status: l.status as SyncStatusType, startedAt: new Date(l.startedAt), durationMs: l.durationMs, message: l.message ?? null } });
-    }
-
-    await db.auditLog.deleteMany({});
-    for (const a of [...recentAuditLogs, ...extraAuditLogs]) {
-      await db.auditLog.create({ data: { id: a.id, at: new Date(a.at), actorUserId: a.actorUserId, actorRole: a.actorRole as RoleType, action: a.action, objectType: a.objectType, objectId: a.objectId, ip: a.ip ?? null, userAgent: a.userAgent ?? null, context: a.context ?? undefined } });
-    }
-
-    await db.securityLog.deleteMany({});
-    for (const s of securityLogs) {
-      await db.securityLog.create({ data: { id: s.id, at: new Date(s.at), severity: s.severity, event: s.event, userId: s.userId ?? null, ip: s.ip ?? null, message: s.message } });
-    }
-    log.push(`logs gesynced`);
-
-    return NextResponse.json({ ok: true, log });
+    return NextResponse.json({ ok: true, duration: Date.now() - t0, log });
   } catch (err) {
     console.error('[seed]', err);
-    return NextResponse.json({ ok: false, error: String(err), log }, { status: 500 });
+    return NextResponse.json({ ok: false, error: String(err), duration: Date.now() - t0, log }, { status: 500 });
   }
 }
