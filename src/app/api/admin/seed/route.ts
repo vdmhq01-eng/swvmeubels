@@ -229,15 +229,17 @@ export async function GET(req: Request) {
     }
 
     const allTs = [currentWeekTimesheet, ...previousTimesheets, ...pendingApprovals.map((p) => p.timesheet)];
+    // Verwijder ALLE entries eerst om id-collisions tussen timesheets te voorkomen
+    await db.timeEntry.deleteMany({});
     for (const t of allTs) {
       await db.timesheet.upsert({
         where: { id: t.id },
         update: { studentId: t.studentId, weekNumber: t.weekNumber, year: t.year, weekStartDate: new Date(t.weekStartDate), status: t.status as TimesheetStatusType, submittedAt: t.submittedAt ? new Date(t.submittedAt) : null, rejectionReason: t.rejectionReason ?? null },
         create: { id: t.id, studentId: t.studentId, weekNumber: t.weekNumber, year: t.year, weekStartDate: new Date(t.weekStartDate), status: t.status as TimesheetStatusType, submittedAt: t.submittedAt ? new Date(t.submittedAt) : null, rejectionReason: t.rejectionReason ?? null },
       });
-      await db.timeEntry.deleteMany({ where: { timesheetId: t.id } });
       for (const e of t.entries) {
-        await db.timeEntry.create({ data: { id: e.id, timesheetId: t.id, date: new Date(e.date), type: e.type as TimeEntryTypeType, hours: e.hours, note: e.note ?? null } });
+        // Geen expliciete id — Prisma cuid() voorkomt collisions
+        await db.timeEntry.create({ data: { timesheetId: t.id, date: new Date(e.date), type: e.type as TimeEntryTypeType, hours: e.hours, note: e.note ?? null } });
       }
     }
     log.push(`${allTs.length} weekstaten`);
