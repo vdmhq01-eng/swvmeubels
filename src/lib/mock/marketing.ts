@@ -170,7 +170,7 @@ export const studentStories: StudentStory[] = [
     program: 'Interieurbouwer BBL 3',
     year: 'Jaar 2',
     quote: 'Beste keus ooit. Ik leer een vak én verdien gewoon m\'n eigen geld. Theorie op vrijdag, rest van de week in de werkplaats.',
-    photo: 'https://images.unsplash.com/photo-1556157382-97eda2d62296?auto=format&fit=crop&w=900&q=80',
+    photo: 'https://v3b.fal.media/files/b/0a9f9eb0/PNynWsW034hfYJ3NBgGcn.jpg',
     socials: { tiktok: '@jamie.builds' },
   },
   {
@@ -180,7 +180,7 @@ export const studentStories: StudentStory[] = [
     program: 'Meubelmaker BBL 2',
     year: 'Jaar 1',
     quote: 'Klas was niks voor mij. Hier doe ik echt iets met mijn handen. En aan het eind van de maand staat er gewoon salaris op mijn rekening.',
-    photo: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=900&q=80',
+    photo: 'https://v3b.fal.media/files/b/0a9f9eb0/-HtONgPlxb54rGZuQRGhr.jpg',
     socials: { instagram: '@lisa.maakt' },
   },
   {
@@ -190,7 +190,7 @@ export const studentStories: StudentStory[] = [
     program: 'Houtbewerker BBL 2',
     year: 'Jaar 2',
     quote: 'Van CNC tot maatwerk. Elke dag iets nieuws. Mijn werkbedrijf wil me na m\'n diploma vast in dienst nemen.',
-    photo: 'https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?auto=format&fit=crop&w=900&q=80',
+    photo: 'https://v3b.fal.media/files/b/0a9f9eb0/M-q-wKo8UyrvDIAhVWleR.jpg',
     socials: { tiktok: '@markwerkt' },
   },
 ];

@@ -80,6 +80,35 @@ const PROMPTS = {
     },
   ],
 
+  // 4 social post thumbnails — 9:16 TikTok/Instagram reel formaat
+  // Past bij de captions in SocialBar component
+  social: [
+    {
+      key: 'dag-werkplek',
+      prompt:
+        'authentic candid mobile phone photo style of a Dutch furniture workshop in full action, multiple young apprentices working with wood, warm side lighting, organized workbenches with tools, sawdust in air, vertical 9:16 TikTok composition, raw documentary feel, hyperrealistic',
+      size: 'portrait_16_9' as const,
+    },
+    {
+      key: 'maatwerk-kast',
+      prompt:
+        'beautiful close-up photo of a finished custom oak cabinet with elegant joinery, warm wood grain visible, soft natural lighting, in a modern interior setting, professional product photography, vertical 9:16 Instagram composition, hyperrealistic, showing craftsmanship detail',
+      size: 'portrait_16_9' as const,
+    },
+    {
+      key: 'verdien-geld',
+      prompt:
+        'authentic mobile phone style photo of a young 19-year-old Dutch apprentice woodworker smiling proudly, holding a salary letter or first paycheck, wearing dusty work clothes, in workshop setting with warm lighting, vertical 9:16 TikTok composition, candid moment, hyperrealistic, joyful expression',
+      size: 'portrait_16_9' as const,
+    },
+    {
+      key: 'praktijkdag',
+      prompt:
+        'authentic photo of a group of young Dutch BBL students in a vocational school workshop learning woodworking, instructor demonstrating tool use, classroom-workshop atmosphere with bright lighting, vertical 9:16 composition, documentary photography style, hyperrealistic, multiple people in scene',
+      size: 'portrait_16_9' as const,
+    },
+  ],
+
   // 3 student verhalen voor de StudentStories sectie op homepage
   // Authentic, in-the-workshop documentary photos
   verhalen: [
@@ -119,7 +148,7 @@ export async function GET(req: Request) {
     type Prompt = { key: string; prompt: string; size: 'portrait_16_9' | 'landscape_16_9' | 'portrait_4_3' };
     let prompts: Prompt[] = [];
     if (set === 'all') {
-      prompts = [...PROMPTS.panels, ...PROMPTS.home, ...PROMPTS.studenten, ...PROMPTS.bedrijven, ...PROMPTS.solliciteren, ...PROMPTS.verhalen];
+      prompts = [...PROMPTS.panels, ...PROMPTS.home, ...PROMPTS.studenten, ...PROMPTS.bedrijven, ...PROMPTS.solliciteren, ...PROMPTS.verhalen, ...PROMPTS.social];
     } else if (set in PROMPTS) {
       prompts = PROMPTS[set as keyof typeof PROMPTS] as Prompt[];
     } else {
