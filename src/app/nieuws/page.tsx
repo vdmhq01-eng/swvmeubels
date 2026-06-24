@@ -6,12 +6,12 @@ import { newsItems } from '@/lib/mock/marketing';
 import { formatDateLong } from '@/lib/utils';
 
 const newsImages = [
-  'https://images.unsplash.com/photo-1611025437671-ae3acc7e4d34?auto=format&fit=crop&w=1200&q=80',
-  'https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&w=1200&q=80',
-  'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=1200&q=80',
-  'https://images.unsplash.com/photo-1568871453524-78fc36476b15?auto=format&fit=crop&w=1200&q=80',
-  'https://images.unsplash.com/photo-1503387837-b154d5074bd2?auto=format&fit=crop&w=1200&q=80',
-  'https://images.unsplash.com/photo-1572297870735-1bd7d4926b1a?auto=format&fit=crop&w=1200&q=80',
+  'https://v3b.fal.media/files/b/0a9f9f5c/1NGWQizWFuwrH5K_Uv7uw.jpg',
+  'https://v3b.fal.media/files/b/0a9f9f54/bBmKStBLv-jNjV7vxnpKK.jpg',
+  'https://v3b.fal.media/files/b/0a9f9f5c/ORTKJ4Wrtj8PC4-TnFxQT.jpg',
+  'https://v3b.fal.media/files/b/0a9f9f54/HtvsSU4rgo21P7CYjQhme.jpg',
+  'https://v3b.fal.media/files/b/0a9f9f54/jhTUmEYnPPqJU1FWUf8ra.jpg',
+  'https://v3b.fal.media/files/b/0a9f9f5c/HBA_Ed-_JwmjcL5mSoXln.jpg',
 ];
 
 const categoryVariant: Record<string, string> = {
