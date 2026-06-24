@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { MarketingShell } from '@/components/marketing/MarketingShell';
 import { Hero, heroImages } from '@/components/marketing/Hero';
+import { HeroPanels, defaultHeroPanels } from '@/components/marketing/HeroPanels';
 import { SalarySticker } from '@/components/marketing/SalarySticker';
 import { StatsBar } from '@/components/marketing/StatsBar';
 import { StudentStories } from '@/components/marketing/StudentStories';
@@ -14,12 +15,12 @@ export default function HomePage() {
 
   return (
     <MarketingShell activeHref="/">
-      <Hero
+      <HeroPanels
         eyebrow="Volg een opleiding via het SWV"
         title="Uit het juiste hout gesneden?"
         highlight="Word vakman."
         description="Vier dagen per week aan de slag bij een lidbedrijf, één dag naar school. Geen geblader in boeken, wel iets in je handen. En aan het eind van de maand: salaris. Recht door zee."
-        image={heroImages.home}
+        panels={defaultHeroPanels}
         sticker={<SalarySticker />}
       >
         <Link href="/solliciteren" className="btn-primary">
@@ -32,7 +33,7 @@ export default function HomePage() {
         >
           Hoe werkt het?
         </Link>
-      </Hero>
+      </HeroPanels>
 
       <StatsBar />
 

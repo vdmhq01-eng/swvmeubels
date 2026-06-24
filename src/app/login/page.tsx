@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Logo } from '@/components/ui/Logo';
 import { Icon } from '@/components/ui/Icon';
-import { ProblemFlow } from '@/components/marketing/ProblemFlow';
+import { AnimatedFlow } from '@/components/marketing/AnimatedFlow';
 
 const roles: Array<{
   role: string;
@@ -274,99 +274,49 @@ export default function LoginPage() {
           </div>
 
           <div className="space-y-5">
-            <ProblemFlow
+            <AnimatedFlow
               number="1"
               problem="Versnipperde informatie"
-              oldFlow={{
-                boxes: [
-                  { label: 'Synergy', tone: 'gray' },
-                  { label: 'Globe', tone: 'gray' },
-                  { label: 'Cleverdesk', tone: 'gray' },
-                  { label: 'DocuSign', tone: 'gray' },
-                  { label: 'Arbodienst', tone: 'gray' },
-                  { label: 'Outlook', tone: 'gray' },
-                  { label: 'Excel', tone: 'gray' },
-                  { label: 'P-schijf', tone: 'gray' },
-                ],
-                pain: 'Zoeken naar één studentdossier kost 5 minuten over 8 systemen.',
-              }}
-              newFlow={{
-                box: { label: 'Cross-system dashboard', tone: 'primary' },
-                gain: 'Eén matrix: sync-status Synergy + Cleverdesk + DocuSign + Globe per student.',
-              }}
+              oldBoxes={['Synergy', 'Globe', 'Cleverdesk', 'DocuSign', 'Arbodienst', 'Outlook', 'Excel', 'P-schijf']}
+              oldPain="Zoeken naar één studentdossier kost 5 minuten over 8 systemen."
+              newLabel="Cross-system dashboard"
+              newGain="Eén matrix: sync-status Synergy + Cleverdesk + DocuSign + Globe per student."
             />
-
-            <ProblemFlow
+            <AnimatedFlow
               number="2"
               problem="Veel handmatige overdracht"
-              oldFlow={{
-                boxes: [
-                  { label: 'Student belt', tone: 'gray' },
-                  { label: 'Binnendienst noteert', tone: 'gray' },
-                  { label: 'Mail aan coördinator', tone: 'gray' },
-                  { label: 'Excel bijwerken', tone: 'gray' },
-                ],
-                pain: 'Iedere stap kan vergeten worden. Tussenstops kosten dagen.',
-              }}
-              newFlow={{
-                box: { label: 'Direct in juiste dashboard', tone: 'primary' },
-                gain: 'Student ziekmelding → coördinator + lidbedrijf zien het direct.',
-              }}
+              oldBoxes={['Student belt', 'Binnendienst noteert', 'Mail aan coördinator', 'Excel bijwerken']}
+              oldPain="Iedere stap kan vergeten worden. Tussenstops kosten dagen."
+              newLabel="Direct in juiste dashboard"
+              newGain="Student ziekmelding → coördinator + lidbedrijf zien het direct."
+              durationMs={5000}
             />
-
-            <ProblemFlow
+            <AnimatedFlow
               number="3"
               problem="Geen centrale communicatie"
-              oldFlow={{
-                boxes: [
-                  { label: 'Mail', tone: 'gray' },
-                  { label: 'WhatsApp privé', tone: 'gray' },
-                  { label: 'Telefoon', tone: 'gray' },
-                  { label: 'Cleverdesk berichten', tone: 'gray' },
-                  { label: 'DocuSign mails', tone: 'gray' },
-                ],
-                pain: 'Geen archief, geen overzicht, collega weet niet wat is afgesproken.',
-              }}
-              newFlow={{
-                box: { label: 'Unified inbox per rol', tone: 'primary' },
-                gain: 'Alle sollicitaties, berichten, signalen op één plek met filters.',
-              }}
+              oldBoxes={['Mail', 'WhatsApp privé', 'Telefoon', 'Cleverdesk berichten', 'DocuSign mails']}
+              oldPain="Geen archief, geen overzicht, collega weet niet wat is afgesproken."
+              newLabel="Unified inbox per rol"
+              newGain="Alle sollicitaties, berichten, signalen op één plek met filters."
+              durationMs={4800}
             />
-
-            <ProblemFlow
+            <AnimatedFlow
               number="4"
               problem="Geen automatische signalering"
-              oldFlow={{
-                boxes: [
-                  { label: 'Ziekmelding vergeten', tone: 'rose' },
-                  { label: 'Herstel niet doorgegeven', tone: 'rose' },
-                  { label: 'Uren niet ingevuld', tone: 'rose' },
-                  { label: 'Contract verloopt', tone: 'rose' },
-                ],
-                pain: 'Belangrijke acties blijven liggen tot iemand het toevallig opmerkt.',
-              }}
-              newFlow={{
-                box: { label: 'Signaleringen-engine', tone: 'primary' },
-                gain: 'Automatisch detecteren en doorzetten naar de juiste persoon.',
-              }}
+              oldBoxes={['Ziekmelding vergeten', 'Herstel niet doorgegeven', 'Uren niet ingevuld', 'Contract verloopt']}
+              oldPain="Belangrijke acties blijven liggen tot iemand het toevallig opmerkt."
+              newLabel="Signaleringen-engine"
+              newGain="Automatisch detecteren en doorzetten naar de juiste persoon."
+              durationMs={5200}
             />
-
-            <ProblemFlow
+            <AnimatedFlow
               number="5"
               problem="Excel als vangnet"
-              oldFlow={{
-                boxes: [
-                  { label: 'Uitdienstlijsten.xlsx', tone: 'amber' },
-                  { label: 'Verloningscontroles.xlsx', tone: 'amber' },
-                  { label: 'Facturatie-uitz.xlsx', tone: 'amber' },
-                  { label: 'Actielijsten.xlsx', tone: 'amber' },
-                ],
-                pain: 'Foutgevoelig, één persoon kent de regels, geen backup.',
-              }}
-              newFlow={{
-                box: { label: 'Workflow pagina\'s in portaal', tone: 'primary' },
-                gain: 'Mutaties, eindafrekening en facturatie als geleide flow met checks.',
-              }}
+              oldBoxes={['Uitdienstlijsten.xlsx', 'Verloningscontroles.xlsx', 'Facturatie-uitz.xlsx', 'Actielijsten.xlsx']}
+              oldPain="Foutgevoelig, één persoon kent de regels, geen backup."
+              newLabel="Workflow pagina's in portaal"
+              newGain="Mutaties, eindafrekening en facturatie als geleide flow met checks."
+              durationMs={4600}
             />
           </div>
 
