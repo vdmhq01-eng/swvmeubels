@@ -203,10 +203,10 @@ export type SocialPost = {
 };
 
 export const socialPosts: SocialPost[] = [
-  { platform: 'tiktok', thumb: 'https://images.unsplash.com/photo-1611025437671-ae3acc7e4d34?auto=format&fit=crop&w=600&q=80', caption: 'Een dag op de werkplek 🔨', likes: '12.4k' },
-  { platform: 'instagram', thumb: 'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80', caption: 'Maatwerk kast af!', likes: '2.1k' },
-  { platform: 'tiktok', thumb: 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&w=600&q=80', caption: 'Verdien je eigen geld', likes: '8.7k' },
-  { platform: 'instagram', thumb: 'https://images.unsplash.com/photo-1568871453524-78fc36476b15?auto=format&fit=crop&w=600&q=80', caption: 'Praktijkdag in Twente', likes: '1.5k' },
+  { platform: 'tiktok',    thumb: 'https://v3b.fal.media/files/b/0a9f9edf/UdoqjSPgDybdecQf0h_nq.jpg', caption: 'Een dag op de werkplek 🔨', likes: '12.4k' },
+  { platform: 'instagram', thumb: 'https://v3b.fal.media/files/b/0a9f9edf/UWEgmqPsq2WDhmZlytWQG.jpg', caption: 'Maatwerk kast af!',         likes: '2.1k' },
+  { platform: 'tiktok',    thumb: 'https://v3b.fal.media/files/b/0a9f9edf/7538Q-H9cZmhY553NzfGJ.jpg', caption: 'Verdien je eigen geld',     likes: '8.7k' },
+  { platform: 'instagram', thumb: 'https://v3b.fal.media/files/b/0a9f9edf/TH1o0Kbp3_YfLmB5odNkf.jpg', caption: 'Praktijkdag in Twente',    likes: '1.5k' },
 ];
 
 export type NewsItem = {
