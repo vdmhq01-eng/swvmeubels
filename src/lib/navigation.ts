@@ -51,6 +51,7 @@ export const navigation: Record<Role, NavItem[]> = {
   ],
   COORDINATOR: [
     { label: 'Dashboard', href: '/coordinator', icon: 'Home' },
+    { label: 'Unified inbox', href: '/coordinator/inbox', icon: 'Bell' },
     { label: 'Mijn regio', href: '/coordinator/regio', icon: 'Activity' },
     { label: 'Meldingen', href: '/coordinator/meldingen', icon: 'Bell' },
     { label: 'Sollicitaties', href: '/coordinator/sollicitaties', icon: 'Bell' },
@@ -84,6 +85,7 @@ export const navigation: Record<Role, NavItem[]> = {
   ADMIN: [
     { label: 'Dashboard', href: '/admin', icon: 'Home' },
     { label: 'Synergy kaartenbak', href: '/admin/kaartenbak', icon: 'Activity' },
+    { label: 'Cross-system sync', href: '/admin/sync-status', icon: 'Link' },
     { label: 'Mutaties personeel', href: '/admin/mutaties', icon: 'Refresh' },
     { label: 'Facturatie lidbedrijven', href: '/admin/facturatie', icon: 'Euro' },
     { label: 'Eindafrekeningen', href: '/admin/eindafrekening', icon: 'Doc' },

@@ -89,7 +89,12 @@ export const defaultHeroImages: HeroImage[] = [
 ];
 
 export const heroImages = {
-  home: defaultHeroImages[0],
+  // Drop een eigen 'hero-home.jpg' in /public om deze te overschrijven.
+  // Default: warm wood + sawdust in dark workshop.
+  home: {
+    src: 'https://images.unsplash.com/photo-1565374395542-0ce18882c857?auto=format&fit=crop&w=2400&q=85',
+    alt: 'Houtwerk in werkplaats — warm licht op stapel planken',
+  },
   bedrijven: defaultHeroImages[2],
   studenten: defaultHeroImages[1],
   solliciteren: defaultHeroImages[3],

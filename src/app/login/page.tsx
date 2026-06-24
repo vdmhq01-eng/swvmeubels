@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Logo } from '@/components/ui/Logo';
 import { Icon } from '@/components/ui/Icon';
+import { ProblemFlow } from '@/components/marketing/ProblemFlow';
 
 const roles: Array<{
   role: string;
@@ -253,6 +254,127 @@ export default function LoginPage() {
               <p className="mt-2 text-sm leading-relaxed text-ink-700">{s.body}</p>
             </article>
           ))}
+        </div>
+      </section>
+
+      {/* 5 hoofdproblemen — visueel */}
+      <section className="border-y border-bone-200 bg-bone-50 py-12 md:py-16">
+        <div className="mx-auto max-w-6xl px-6">
+          <div className="mb-10">
+            <div className="text-xs font-bold uppercase tracking-[0.2em] text-primary-600">
+              De vijf hoofdproblemen
+            </div>
+            <h2 className="mt-2 font-display text-2xl font-bold sm:text-3xl">
+              Van versnippering naar één werkplek
+            </h2>
+            <p className="mt-2 max-w-3xl text-ink-600">
+              Het portaal lost vijf concrete pijnpunten op. Per probleem zie je hieronder de
+              huidige situatie (links) en de nieuwe werkwijze (rechts).
+            </p>
+          </div>
+
+          <div className="space-y-5">
+            <ProblemFlow
+              number="1"
+              problem="Versnipperde informatie"
+              oldFlow={{
+                boxes: [
+                  { label: 'Synergy', tone: 'gray' },
+                  { label: 'Globe', tone: 'gray' },
+                  { label: 'Cleverdesk', tone: 'gray' },
+                  { label: 'DocuSign', tone: 'gray' },
+                  { label: 'Arbodienst', tone: 'gray' },
+                  { label: 'Outlook', tone: 'gray' },
+                  { label: 'Excel', tone: 'gray' },
+                  { label: 'P-schijf', tone: 'gray' },
+                ],
+                pain: 'Zoeken naar één studentdossier kost 5 minuten over 8 systemen.',
+              }}
+              newFlow={{
+                box: { label: 'Cross-system dashboard', tone: 'primary' },
+                gain: 'Eén matrix: sync-status Synergy + Cleverdesk + DocuSign + Globe per student.',
+              }}
+            />
+
+            <ProblemFlow
+              number="2"
+              problem="Veel handmatige overdracht"
+              oldFlow={{
+                boxes: [
+                  { label: 'Student belt', tone: 'gray' },
+                  { label: 'Binnendienst noteert', tone: 'gray' },
+                  { label: 'Mail aan coördinator', tone: 'gray' },
+                  { label: 'Excel bijwerken', tone: 'gray' },
+                ],
+                pain: 'Iedere stap kan vergeten worden. Tussenstops kosten dagen.',
+              }}
+              newFlow={{
+                box: { label: 'Direct in juiste dashboard', tone: 'primary' },
+                gain: 'Student ziekmelding → coördinator + lidbedrijf zien het direct.',
+              }}
+            />
+
+            <ProblemFlow
+              number="3"
+              problem="Geen centrale communicatie"
+              oldFlow={{
+                boxes: [
+                  { label: 'Mail', tone: 'gray' },
+                  { label: 'WhatsApp privé', tone: 'gray' },
+                  { label: 'Telefoon', tone: 'gray' },
+                  { label: 'Cleverdesk berichten', tone: 'gray' },
+                  { label: 'DocuSign mails', tone: 'gray' },
+                ],
+                pain: 'Geen archief, geen overzicht, collega weet niet wat is afgesproken.',
+              }}
+              newFlow={{
+                box: { label: 'Unified inbox per rol', tone: 'primary' },
+                gain: 'Alle sollicitaties, berichten, signalen op één plek met filters.',
+              }}
+            />
+
+            <ProblemFlow
+              number="4"
+              problem="Geen automatische signalering"
+              oldFlow={{
+                boxes: [
+                  { label: 'Ziekmelding vergeten', tone: 'rose' },
+                  { label: 'Herstel niet doorgegeven', tone: 'rose' },
+                  { label: 'Uren niet ingevuld', tone: 'rose' },
+                  { label: 'Contract verloopt', tone: 'rose' },
+                ],
+                pain: 'Belangrijke acties blijven liggen tot iemand het toevallig opmerkt.',
+              }}
+              newFlow={{
+                box: { label: 'Signaleringen-engine', tone: 'primary' },
+                gain: 'Automatisch detecteren en doorzetten naar de juiste persoon.',
+              }}
+            />
+
+            <ProblemFlow
+              number="5"
+              problem="Excel als vangnet"
+              oldFlow={{
+                boxes: [
+                  { label: 'Uitdienstlijsten.xlsx', tone: 'amber' },
+                  { label: 'Verloningscontroles.xlsx', tone: 'amber' },
+                  { label: 'Facturatie-uitz.xlsx', tone: 'amber' },
+                  { label: 'Actielijsten.xlsx', tone: 'amber' },
+                ],
+                pain: 'Foutgevoelig, één persoon kent de regels, geen backup.',
+              }}
+              newFlow={{
+                box: { label: 'Workflow pagina\'s in portaal', tone: 'primary' },
+                gain: 'Mutaties, eindafrekening en facturatie als geleide flow met checks.',
+              }}
+            />
+          </div>
+
+          <div className="mt-10 rounded-3xl border border-primary-200 bg-white p-6 text-center">
+            <p className="font-display text-lg font-bold text-ink-900">
+              Het doel is niet digitalisering. Het doel is minder handmatig werk, minder fouten, en groeien zonder evenredig meer personeel.
+            </p>
+          </div>
         </div>
       </section>
 
