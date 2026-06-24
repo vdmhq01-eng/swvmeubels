@@ -73,9 +73,25 @@ export default async function StudentDashboardPage() {
         </div>
       ) : null}
 
-      {/* Direct contact via WhatsApp */}
-      <div className="mb-6 overflow-hidden rounded-2xl border border-bone-200 bg-white shadow-card">
-        <div className="grid gap-4 p-5 md:grid-cols-[1fr_auto] md:items-center">
+      {/* Direct contact via WhatsApp — compact op mobiel */}
+      <div className="mb-4 overflow-hidden rounded-xl border border-bone-200 bg-white shadow-card md:mb-6 md:rounded-2xl">
+        {/* Mobile: compact */}
+        <div className="flex items-center gap-3 p-3 md:hidden">
+          <Avatar name={student.coordinator?.user.name ?? 'Coördinator'} tone="green" size="sm" />
+          <div className="min-w-0 flex-1">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-primary-600">Coördinator</div>
+            <div className="truncate text-sm font-semibold text-ink-900">
+              {student.coordinator?.user.name ?? 'Coördinator'}
+            </div>
+          </div>
+          <WhatsAppButton
+            message={`Hoi ${(student.coordinator?.user.name ?? '').split(' ')[0] || ''}, je spreekt met ${student.user.name}. `}
+            label="App"
+            className="!px-3 !py-1.5 !text-[11px]"
+          />
+        </div>
+        {/* Desktop: volledig */}
+        <div className="hidden grid-cols-[1fr_auto] gap-4 p-5 md:grid md:items-center">
           <div className="flex items-center gap-4">
             <Avatar name={student.coordinator?.user.name ?? 'Coördinator'} tone="green" size="lg" />
             <div className="min-w-0">

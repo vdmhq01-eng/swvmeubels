@@ -119,8 +119,31 @@ export function AppInstallBanner() {
 
   return (
     <>
-      <div className="mb-6 overflow-hidden rounded-2xl border border-primary-200 bg-gradient-to-br from-primary-50 to-bone-50 shadow-card">
-        <div className="grid grid-cols-1 gap-4 p-5 md:grid-cols-[auto_1fr_auto] md:items-center md:gap-6">
+      {/* Compact op mobiel, prominent op desktop */}
+      <div className="mb-4 overflow-hidden rounded-xl border border-primary-200 bg-gradient-to-br from-primary-50 to-bone-50 md:mb-6 md:rounded-2xl">
+        {/* Mobile: compact one-liner met install icon */}
+        <div className="flex items-center gap-3 p-3 md:hidden">
+          <div className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-primary-500 text-white">
+            <PhoneIcon className="h-4 w-4" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="text-sm font-semibold text-ink-900">Installeer SWV app</div>
+            <div className="truncate text-[11px] text-ink-500">Push-meldingen + offline</div>
+          </div>
+          <button onClick={handleInstall} className="rounded-md bg-primary-500 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-white">
+            Installeer
+          </button>
+          <button
+            onClick={dismiss}
+            aria-label="Sluit"
+            className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-ink-400 hover:bg-bone-100"
+          >
+            <Icon.X className="h-4 w-4" />
+          </button>
+        </div>
+
+        {/* Desktop: volledige variant */}
+        <div className="hidden md:grid md:grid-cols-[auto_1fr_auto] md:items-center md:gap-6 md:p-5 md:shadow-card">
           <div className="grid h-12 w-12 shrink-0 place-items-center rounded-md bg-primary-500 text-white shadow-soft">
             <PhoneIcon className="h-6 w-6" />
           </div>
