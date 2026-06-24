@@ -69,32 +69,29 @@ export function Hero({
   );
 }
 
+// AI-generated via FAL Flux. Re-genereer via:
+// GET /api/admin/generate-hero?key=<SEED>&set=all
 export const defaultHeroImages: HeroImage[] = [
   {
-    src: 'https://images.unsplash.com/photo-1568871453524-78fc36476b15?auto=format&fit=crop&w=2400&q=80',
-    alt: 'Meubelmaker aan het werk in werkplaats',
+    src: 'https://v3b.fal.media/files/b/0a9f9e73/q8xkOyo2O0_oy4LxnKS_j.jpg',
+    alt: 'Werkplaats met houten planken en warm licht',
   },
   {
-    src: 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&w=2400&q=80',
-    alt: 'Houtbewerking met handgereedschap',
+    src: 'https://v3b.fal.media/files/b/0a9f9e73/40Bhjm-QJX095kYreDfsV.jpg',
+    alt: 'Apprentice meubelmaker aan het werk',
   },
   {
-    src: 'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=2400&q=80',
-    alt: 'Werkplaats met houten meubels',
+    src: 'https://v3b.fal.media/files/b/0a9f9e73/WbNjVU0KJbPK-HiZ24CqQ.jpg',
+    alt: 'Werkplaats interieur met meester en leerling',
   },
   {
-    src: 'https://images.unsplash.com/photo-1611025437671-ae3acc7e4d34?auto=format&fit=crop&w=2400&q=80',
-    alt: 'Interieurbouwer in studio',
+    src: 'https://v3b.fal.media/files/b/0a9f9e73/0O0lU-Hgu0nWha_K0L_km.jpg',
+    alt: 'Vriendelijke vakman met materiaalstalen',
   },
 ];
 
 export const heroImages = {
-  // Drop een eigen 'hero-home.jpg' in /public om deze te overschrijven.
-  // Default: warm wood + sawdust in dark workshop.
-  home: {
-    src: 'https://images.unsplash.com/photo-1565374395542-0ce18882c857?auto=format&fit=crop&w=2400&q=85',
-    alt: 'Houtwerk in werkplaats — warm licht op stapel planken',
-  },
+  home: defaultHeroImages[0],
   bedrijven: defaultHeroImages[2],
   studenten: defaultHeroImages[1],
   solliciteren: defaultHeroImages[3],
