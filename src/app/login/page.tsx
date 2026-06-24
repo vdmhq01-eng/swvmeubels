@@ -3,6 +3,7 @@ import { Logo } from '@/components/ui/Logo';
 import { Icon } from '@/components/ui/Icon';
 import { AnimatedFlow } from '@/components/marketing/AnimatedFlow';
 import { AvgSection } from '@/components/marketing/AvgSection';
+import { LoginForm } from '@/components/auth/LoginForm';
 
 const roles: Array<{
   role: string;
@@ -362,29 +363,7 @@ export default function LoginPage() {
             <h2 className="font-display text-xl font-bold text-ink-900">Inloggen met SWV-account</h2>
             <p className="mt-1 text-sm text-ink-500">In productie: SSO + 2FA voor admins.</p>
           </div>
-          <form className="mt-6 space-y-4">
-            <div>
-              <label className="label mb-1.5 block">E-mailadres</label>
-              <input type="email" className="input" placeholder="jij@swvmeubel.nl" />
-            </div>
-            <div>
-              <div className="mb-1.5 flex items-center justify-between">
-                <label className="label">Wachtwoord</label>
-                <Link href="/wachtwoord-vergeten" className="text-xs font-semibold text-primary-600 hover:text-primary-700">
-                  Vergeten?
-                </Link>
-              </div>
-              <input type="password" className="input" placeholder="••••••••" />
-            </div>
-            <button type="submit" className="btn-primary w-full">
-              <Icon.Lock className="h-4 w-4" />
-              Inloggen
-            </button>
-            <p className="text-center text-xs text-ink-500">
-              Door in te loggen ga je akkoord met onze{' '}
-              <Link href="/privacy" className="font-semibold text-primary-600">privacyverklaring</Link>.
-            </p>
-          </form>
+          <LoginForm />
         </div>
       </section>
 

@@ -37,6 +37,7 @@ model User {
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
 
+  totpPendingSecret String?
   studentProfile    Student?
   coordinatorProfile Coordinator?
   companyContacts   CompanyContact[]
