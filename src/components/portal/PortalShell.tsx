@@ -1,5 +1,6 @@
 import { Sidebar } from './Sidebar';
 import { Topbar } from './Topbar';
+import { getDemoSession } from '@/lib/data/session';
 import type { Role } from '@/lib/types';
 import { navigation } from '@/lib/navigation';
 
@@ -20,6 +21,8 @@ export function PortalShell({
   showSearch?: boolean;
   children: React.ReactNode;
 }) {
+  // Demo session voor NotificationBell. In productie komt dit uit auth-session.
+  const ctx = getDemoSession(role);
   return (
     <div className="flex min-h-screen bg-bone-50">
       <Sidebar items={navigation[role]} role={role} activeHref={activeHref} />
@@ -31,6 +34,7 @@ export function PortalShell({
           showSearch={showSearch}
           role={role}
           activeHref={activeHref}
+          userId={ctx.userId}
         />
         <main className="flex-1 px-4 py-6 lg:px-8 lg:py-8">{children}</main>
       </div>

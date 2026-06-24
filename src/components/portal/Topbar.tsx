@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Avatar } from '@/components/ui/Avatar';
 import { Icon } from '@/components/ui/Icon';
 import { MobileMenu } from './MobileMenu';
+import { NotificationBell } from './NotificationBell';
 import type { Role } from '@/lib/types';
 import { navigation } from '@/lib/navigation';
 
@@ -12,6 +13,7 @@ export function Topbar({
   greeting,
   role,
   activeHref,
+  userId,
 }: {
   userName: string;
   userSubtitle: string;
@@ -19,6 +21,7 @@ export function Topbar({
   greeting?: { title: string; subtitle: string };
   role: Role;
   activeHref: string;
+  userId?: string;
 }) {
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between gap-4 border-b border-bone-200 bg-bone-50/85 px-4 py-4 backdrop-blur lg:px-8">
@@ -48,14 +51,7 @@ export function Topbar({
           </div>
         ) : null}
 
-        <Link
-          href={`/${role.toLowerCase().replace('coordinator', 'coordinator').replace('company', 'lidbedrijf').replace('admin', 'admin').replace('student', 'student')}/meldingen`}
-          className="relative grid h-10 w-10 place-items-center rounded-full border border-bone-200 bg-white text-ink-600 hover:bg-bone-100"
-          aria-label="Meldingen"
-        >
-          <Icon.Bell className="h-[18px] w-[18px]" />
-          <span className="absolute right-2 top-2 inline-block h-2 w-2 rounded-full bg-rose-500" />
-        </Link>
+        {userId ? <NotificationBell userId={userId} /> : null}
 
         <Link
           href={portalSettingsHref(role)}
