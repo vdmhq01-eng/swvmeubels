@@ -40,10 +40,10 @@ export default function HomePage() {
       {/* Foto-strook met grayscale → kleur op hover */}
       <section className="mx-auto max-w-6xl px-6 py-16">
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          <ImageTile src="https://images.unsplash.com/photo-1611025437671-ae3acc7e4d34?auto=format&fit=crop&w=900&q=80" alt="Interieurbouwer in werkplaats" />
-          <ImageTile src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&w=900&q=80" alt="Houtbewerking detail" />
-          <ImageTile src="https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=900&q=80" alt="Maatwerk meubel" />
-          <ImageTile src="https://images.unsplash.com/photo-1568871453524-78fc36476b15?auto=format&fit=crop&w=900&q=80" alt="Vakmanschap" />
+          <ImageTile src="https://v3b.fal.media/files/b/0a9f9efd/0GUS6GJ5g6ZNiQ6biwSdo.jpg" alt="Interieurbouwer in werkplaats" />
+          <ImageTile src="https://v3b.fal.media/files/b/0a9f9efd/JdFTOXc_ek8w9jDiWZjQr.jpg" alt="Houtbewerking detail" />
+          <ImageTile src="https://v3b.fal.media/files/b/0a9f9efd/CkmUdQ29yp0aGhu2-xP6Q.jpg" alt="Maatwerk meubel" />
+          <ImageTile src="https://v3b.fal.media/files/b/0a9f9efd/LPhJ3KW_jzrYslYLv_o_S.jpg" alt="Vakmanschap" />
         </div>
       </section>
 
