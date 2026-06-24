@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { generateImage } from '@/lib/ai/fal';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const fetchCache = 'force-no-store';
 export const maxDuration = 300; // 5 min — image generation kan duren
 
 /**
@@ -101,14 +103,18 @@ export async function GET(req: Request) {
       return NextResponse.json({ ok: false, error: `Onbekende set. Kies: ${Object.keys(PROMPTS).join(', ')}, all` }, { status: 400 });
     }
 
+    // Random seed per request voor nieuwe variaties bij elke call
+    const seedBase = Math.floor(Math.random() * 1_000_000);
+
     const results = await Promise.all(
-      prompts.map(async (p) => {
+      prompts.map(async (p, i) => {
         try {
           const imgs = await generateImage({
             prompt: p.prompt,
             model: 'flux/dev',
             size: p.size,
             steps: 28,
+            seed: seedBase + i,
           });
           return { key: p.key, ok: true, url: imgs[0]?.url, width: imgs[0]?.width, height: imgs[0]?.height };
         } catch (err) {
@@ -118,7 +124,15 @@ export async function GET(req: Request) {
     );
 
     const duration = Date.now() - t0;
-    return NextResponse.json({ ok: true, durationMs: duration, set, count: results.length, images: results });
+    return new NextResponse(
+      JSON.stringify({ ok: true, durationMs: duration, set, seedBase, count: results.length, images: results }),
+      {
+        headers: {
+          'content-type': 'application/json',
+          'cache-control': 'no-store, no-cache, must-revalidate',
+        },
+      },
+    );
   } catch (err) {
     console.error('[generate-hero]', err);
     return NextResponse.json({ ok: false, error: String(err) }, { status: 500 });
