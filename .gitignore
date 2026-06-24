@@ -39,3 +39,6 @@ prisma/dev.db-journal
 
 # uploads (lokale dev only - in productie naar versleutelde object storage)
 /uploads
+
+# scratchpad voor tijdelijke files (briefs, drafts)
+/scratchpad
