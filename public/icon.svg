@@ -1,5 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="80" fill="#EC6806"/>
-  <text x="50%" y="50%" text-anchor="middle" dominant-baseline="central"
-        font-family="PT Sans, Arial, sans-serif" font-size="180" font-weight="700" fill="#FFFFFF">SWV</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <rect x="2" y="2" width="46" height="46" rx="4" fill="#0FA9A4"/>
+  <rect x="52" y="2" width="46" height="46" rx="4" fill="#2D8FC6"/>
+  <rect x="2" y="52" width="46" height="46" rx="4" fill="#86BC2F"/>
+  <rect x="52" y="52" width="46" height="46" rx="4" fill="#EC6806"/>
 </svg>

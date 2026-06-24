@@ -12,17 +12,16 @@ export default function AppleIcon() {
           width: '100%',
           height: '100%',
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: '#EC6806',
-          color: '#FFFFFF',
-          fontFamily: 'sans-serif',
-          fontSize: 60,
-          fontWeight: 700,
-          letterSpacing: '-1px',
+          flexWrap: 'wrap',
+          background: '#FFFFFF',
+          padding: 14,
+          boxSizing: 'border-box',
         }}
       >
-        SWV
+        <div style={{ width: '49%', height: '49%', background: '#0FA9A4', borderRadius: 8, marginRight: '2%', marginBottom: '2%' }} />
+        <div style={{ width: '49%', height: '49%', background: '#2D8FC6', borderRadius: 8, marginBottom: '2%' }} />
+        <div style={{ width: '49%', height: '49%', background: '#86BC2F', borderRadius: 8, marginRight: '2%' }} />
+        <div style={{ width: '49%', height: '49%', background: '#EC6806', borderRadius: 8 }} />
       </div>
     ),
     { ...size },
