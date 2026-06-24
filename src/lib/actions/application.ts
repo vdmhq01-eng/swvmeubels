@@ -4,6 +4,8 @@ import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { db } from '@/lib/db';
 import { audit } from '@/lib/security/audit';
+import { sendEmail } from '@/lib/email/resend';
+import { applicationConfirmationEmail, newApplicationForCoordinatorEmail } from '@/lib/email/templates';
 
 const applicationSchema = z.object({
   firstName: z.string().min(2).max(60),
@@ -100,6 +102,47 @@ export async function submitApplication(
         toegewezen: coordinator?.user.name ?? 'geen',
       },
     });
+
+    // Stuur emails parallel — faalt stilletjes (logs naar console) als
+    // RESEND_API_KEY ontbreekt, blokkeert nooit de hoofdflow.
+    const confirmation = applicationConfirmationEmail({
+      firstName: data.firstName,
+      coordinatorName: coordinator?.user.name,
+      regionName: region?.name,
+    });
+    const emailPromises: Promise<unknown>[] = [
+      sendEmail({
+        to: data.email,
+        subject: confirmation.subject,
+        html: confirmation.html,
+        text: confirmation.text,
+      }),
+    ];
+    if (coordinator?.user.email) {
+      const coordEmail = newApplicationForCoordinatorEmail({
+        coordinatorName: coordinator.user.name,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        phone: data.phone,
+        postcode: data.postcode,
+        applicantType: data.applicantType,
+        programInterest: data.programInterest,
+        message: data.message,
+        applicationId: application.id,
+      });
+      emailPromises.push(
+        sendEmail({
+          to: coordinator.user.email,
+          subject: coordEmail.subject,
+          html: coordEmail.html,
+          text: coordEmail.text,
+          replyTo: data.email,
+        }),
+      );
+    }
+    // Fire-and-forget — wachten kost extra latency
+    Promise.all(emailPromises).catch((err) => console.error('[email batch]', err));
 
     revalidatePath('/coordinator/sollicitaties');
     revalidatePath('/coordinator/meldingen');

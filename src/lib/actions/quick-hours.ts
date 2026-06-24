@@ -4,6 +4,8 @@ import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { db } from '@/lib/db';
 import { audit } from '@/lib/security/audit';
+import { sendEmail } from '@/lib/email/resend';
+import { timesheetSubmittedForCompanyEmail } from '@/lib/email/templates';
 
 const quickEntrySchema = z.object({
   studentId: z.string().min(1),
@@ -97,6 +99,24 @@ export async function submitQuickWeek(input: QuickEntryInput) {
               href: '/lidbedrijf/goedkeuren',
             },
           });
+        }
+
+        // Email naar lidbedrijf praktijkopleider (fire-and-forget)
+        const contact = student.company.contacts[0];
+        if (contact?.user.email) {
+          const totalHours = data.entries.reduce((s, e) => s + e.hours, 0);
+          const email = timesheetSubmittedForCompanyEmail({
+            contactName: contact.user.name,
+            studentName: student.user.name,
+            weekNumber: data.weekNumber,
+            totalHours,
+          });
+          sendEmail({
+            to: contact.user.email,
+            subject: email.subject,
+            html: email.html,
+            text: email.text,
+          }).catch((err) => console.error('[email timesheet]', err));
         }
       }
     }
