@@ -69,7 +69,7 @@ export function WhatsAppFloating({
       target="_blank"
       rel="noopener noreferrer"
       aria-label="WhatsApp"
-      className="fixed bottom-24 right-5 z-30 grid h-14 w-14 place-items-center rounded-full bg-[#25D366] text-white shadow-2xl ring-4 ring-white/70 transition hover:scale-105 hover:bg-[#1DAA52] lg:bottom-6"
+      className="fixed bottom-24 right-4 z-30 grid h-14 w-14 place-items-center rounded-full bg-[#25D366] text-white shadow-2xl ring-4 ring-white/70 transition hover:scale-105 hover:bg-[#1DAA52] lg:bottom-6 lg:right-6"
     >
       <WhatsAppIcon className="h-7 w-7" />
     </a>
