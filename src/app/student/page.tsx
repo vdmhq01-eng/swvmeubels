@@ -7,6 +7,9 @@ import { Badge, StatusDot } from '@/components/ui/Badge';
 import { Icon } from '@/components/ui/Icon';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { AppInstallBanner } from '@/components/portal/AppInstallBanner';
+import { StudentTutorial } from '@/components/portal/StudentTutorial';
+import { RestartTutorialButton } from '@/components/portal/RestartTutorialButton';
+import { QuickWeekEntry } from '@/components/uren/QuickWeekEntry';
 import { getDemoSession } from '@/lib/data/session';
 import { getStudentDashboard } from '@/lib/data/dashboard';
 import { formatDate, formatHours, formatMoney } from '@/lib/utils';
@@ -46,7 +49,29 @@ export default async function StudentDashboardPage() {
         subtitle: 'Welkom terug in jouw persoonlijke omgeving.',
       }}
     >
+      <StudentTutorial firstName={student.user.name.split(' ')[0]} />
       <AppInstallBanner />
+
+      {currentWeek ? (
+        <div className="mb-6">
+          <QuickWeekEntry
+            studentId={student.id}
+            weekNumber={currentWeek.weekNumber}
+            year={currentWeek.year}
+            weekStartDate={currentWeek.weekStartDate.toISOString().slice(0, 10)}
+            status={currentWeek.status}
+            initialDays={currentWeek.entries.slice(0, 5).map((e, i) => ({
+              date: e.date.toISOString().slice(0, 10),
+              label: ['Ma', 'Di', 'Wo', 'Do', 'Vr'][i] ?? '',
+              type: e.type as 'PRAKTIJK' | 'SCHOOL' | 'ZIEKTE' | 'VERLOF' | 'AFWEZIG',
+              hours: typeof e.hours === 'object' && 'toNumber' in e.hours
+                ? (e.hours as { toNumber: () => number }).toNumber()
+                : Number(e.hours),
+            }))}
+          />
+        </div>
+      ) : null}
+
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           label="Vakantiedagen"
