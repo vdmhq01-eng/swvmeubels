@@ -80,19 +80,19 @@ export default function BedrijvenPage() {
     <MarketingShell activeHref="/bedrijven">
       <Hero
         eyebrow="Voor bedrijven"
-        title="Recht door zee."
-        highlight="Geen werkgevers­gedoe."
-        description="Een Samenwerkingsverband is een groep bedrijven die 4 dagen per week BBL-studenten aan het werk hebben. Wij regelen contract, salaris, verzekering en begeleiding. Jij krijgt een gemotiveerde vakman in opleiding."
+        title="Bijschaven? Dat doe jij."
+        highlight="Wij regelen de rest."
+        description="Contract, salaris, verzekering, examengeld, gereedschap, kleding — alles wat papier en geld kost, regelt het Samenwerkingsverband. Jij doet waar je goed in bent: een leerling vormen tot vakman die je later kunt behouden."
         image={heroImages.bedrijven}
         side={
           <div className="corner-br w-full bg-primary-500 p-8 text-white">
-            <div className="text-xs font-bold uppercase tracking-[0.2em] text-white/80">€300 besparing</div>
+            <div className="text-xs font-bold uppercase tracking-[0.2em] text-white/80">Geen WAB-gedoe</div>
             <h2 className="mt-2 font-display text-2xl font-bold leading-tight">
-              Wij betalen het examengeld. Plus gereedschap, kleding en alle salaris­admin.
+              Bespaar €300 examengeld + alle salarisadministratie.
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-white/90">
-              Geen verborgen kosten. Geen WAB-risico&apos;s. Wel een gemotiveerde student 4 dagen
-              per week in je werkplaats.
+              Geen ketenbepaling, geen transitievergoeding, geen verzuimrisico. Wel een
+              gemotiveerde student 4 dagen per week in je werkplaats.
             </p>
           </div>
         }

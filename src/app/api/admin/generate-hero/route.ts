@@ -80,6 +80,35 @@ const PROMPTS = {
     },
   ],
 
+  // 4 vierkante tiles voor 'Vakmanschap in beeld' strook op homepage
+  // Worden in B&W getoond met hover-naar-kleur effect
+  tiles: [
+    {
+      key: 'tile-interieurbouwer',
+      prompt:
+        'cinematic photo of a Dutch interior builder craftsman installing fitted oak cabinet, focused expression, professional workshop or installation site, warm side lighting, square 1:1 composition, documentary photography, hyperrealistic, beautiful in black and white',
+      size: 'portrait_4_3' as const,
+    },
+    {
+      key: 'tile-houtbewerking',
+      prompt:
+        'macro close-up cinematic photo of hands using a hand plane on oak wood, wood shavings curling off, warm side lighting illuminating the wood grain texture, square 1:1 composition, documentary photography, hyperrealistic, beautiful in black and white',
+      size: 'portrait_4_3' as const,
+    },
+    {
+      key: 'tile-maatwerk',
+      prompt:
+        'cinematic photo of a beautiful custom-made oak dining table close-up showing joinery detail and wood grain, in a sunlit workshop, professional product photography, square 1:1 composition, hyperrealistic, beautiful in black and white',
+      size: 'portrait_4_3' as const,
+    },
+    {
+      key: 'tile-vakmanschap',
+      prompt:
+        'cinematic detail shot of a hand-tool wall in a furniture workshop with chisels, planes, saws organized perfectly, warm side lighting, beautiful patina on wooden tool handles, square 1:1 composition, hyperrealistic, beautiful in black and white',
+      size: 'portrait_4_3' as const,
+    },
+  ],
+
   // 4 social post thumbnails — 9:16 TikTok/Instagram reel formaat
   // Past bij de captions in SocialBar component
   social: [
@@ -148,7 +177,7 @@ export async function GET(req: Request) {
     type Prompt = { key: string; prompt: string; size: 'portrait_16_9' | 'landscape_16_9' | 'portrait_4_3' };
     let prompts: Prompt[] = [];
     if (set === 'all') {
-      prompts = [...PROMPTS.panels, ...PROMPTS.home, ...PROMPTS.studenten, ...PROMPTS.bedrijven, ...PROMPTS.solliciteren, ...PROMPTS.verhalen, ...PROMPTS.social];
+      prompts = [...PROMPTS.panels, ...PROMPTS.home, ...PROMPTS.studenten, ...PROMPTS.bedrijven, ...PROMPTS.solliciteren, ...PROMPTS.verhalen, ...PROMPTS.social, ...PROMPTS.tiles];
     } else if (set in PROMPTS) {
       prompts = PROMPTS[set as keyof typeof PROMPTS] as Prompt[];
     } else {
