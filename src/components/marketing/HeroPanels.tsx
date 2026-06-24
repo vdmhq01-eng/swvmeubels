@@ -83,23 +83,24 @@ export function HeroPanels({
   );
 }
 
-// Default panels die de 4-panel composiet stijl matchen:
-// meubelmaker / koppel met materiaal / CAD-tekening / houtstapel
+// Default panels — AI-generated via FAL Flux voor de SWV stijl
+// (meubelmaker / koppel met materiaal / CAD-tekening / houtstapel)
+// Genereer opnieuw via: GET /api/admin/generate-hero?key=<SEED>&set=panels
 export const defaultHeroPanels: Panel[] = [
   {
-    src: 'https://images.unsplash.com/photo-1601054932830-25ed79a4d6ea?auto=format&fit=crop&w=900&q=85',
+    src: 'https://v3b.fal.media/files/b/0a9f9e56/VosAMHmmoMCR80Yr5MOEt.jpg',
     alt: 'Meubelmaker aan het werk in werkplaats',
   },
   {
-    src: 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&w=900&q=85',
-    alt: 'Houtbewerking met handgereedschap',
+    src: 'https://v3b.fal.media/files/b/0a9f9e56/RlTxIplASbS6v6fk41sE7.jpg',
+    alt: 'Koppel kijkt naar houten materiaalstalen',
   },
   {
-    src: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=900&q=85',
+    src: 'https://v3b.fal.media/files/b/0a9f9e56/z0xLZCiEtVdAQmusFZFuv.jpg',
     alt: 'CAD tekenwerk op monitor',
   },
   {
-    src: 'https://images.unsplash.com/photo-1565374395542-0ce18882c857?auto=format&fit=crop&w=900&q=85',
-    alt: 'Stapel houten balken',
+    src: 'https://v3b.fal.media/files/b/0a9f9e5e/_jyibsjCulA31_1DvUeYV.jpg',
+    alt: 'Stapel houten balken in werkplaats',
   },
 ];

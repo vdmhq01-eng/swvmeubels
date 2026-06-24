@@ -6,6 +6,10 @@ const nextConfig = {
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: 'plus.unsplash.com' },
+      { protocol: 'https', hostname: 'fal.media' },
+      { protocol: 'https', hostname: 'v3b.fal.media' },
+      { protocol: 'https', hostname: 'v3.fal.media' },
+      { protocol: 'https', hostname: 'storage.googleapis.com' },
     ],
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',
@@ -23,7 +27,7 @@ const nextConfig = {
           {
             key: 'Content-Security-Policy',
             value:
-              "default-src 'self'; img-src 'self' data: blob: https://images.unsplash.com https://plus.unsplash.com; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';",
+              "default-src 'self'; img-src 'self' data: blob: https://images.unsplash.com https://plus.unsplash.com https://fal.media https://*.fal.media; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';",
           },
         ],
       },
