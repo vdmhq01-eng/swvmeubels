@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Logo } from '@/components/ui/Logo';
 import { Icon } from '@/components/ui/Icon';
 import { AnimatedFlow } from '@/components/marketing/AnimatedFlow';
+import { AvgSection } from '@/components/marketing/AvgSection';
 
 const roles: Array<{
   role: string;
@@ -327,6 +328,8 @@ export default function LoginPage() {
           </div>
         </div>
       </section>
+
+      <AvgSection />
 
       {/* Demo tips */}
       <section className="bg-bone-100 py-12 md:py-16">
