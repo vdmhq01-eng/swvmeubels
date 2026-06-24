@@ -75,9 +75,9 @@ export default async function StudentProfielPage() {
 
       <Card className="mt-6">
         <CardHeader title="Mijn rechten (AVG)" subtitle="Inzage, correctie en bezwaar" action={
-          <button className="btn-secondary">
-            <Icon.Doc className="h-4 w-4" /> Vraag dataexport
-          </button>
+          <a href="/api/me/export" className="btn-secondary" download>
+            <Icon.Doc className="h-4 w-4" /> Download mijn data
+          </a>
         } />
         <CardBody>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
