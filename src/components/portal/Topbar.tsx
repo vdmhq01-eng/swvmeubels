@@ -40,12 +40,12 @@ export function Topbar({
       </div>
 
       <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-        {showSearch ? (
+        {showSearch && role !== 'STUDENT' ? (
           <div className="relative hidden md:block">
             <Icon.Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" />
             <input
               type="search"
-              placeholder="Zoek student, bedrijf of document"
+              placeholder={searchPlaceholder(role)}
               className="input w-72 pl-9"
             />
           </div>
@@ -74,5 +74,14 @@ function portalSettingsHref(role: Role) {
     case 'COORDINATOR': return '/coordinator/instellingen';
     case 'COMPANY': return '/lidbedrijf/instellingen';
     case 'ADMIN': return '/admin/instellingen';
+  }
+}
+
+function searchPlaceholder(role: Role): string {
+  switch (role) {
+    case 'COORDINATOR': return 'Zoek student, lidbedrijf of document';
+    case 'COMPANY': return 'Zoek student, weekstaat of document';
+    case 'ADMIN': return 'Zoek gebruiker, bedrijf, integratie of log';
+    default: return 'Zoeken';
   }
 }

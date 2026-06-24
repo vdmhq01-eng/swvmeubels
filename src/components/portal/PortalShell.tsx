@@ -36,7 +36,9 @@ export function PortalShell({
           activeHref={activeHref}
           userId={ctx.userId}
         />
-        <main className="flex-1 px-4 py-6 lg:px-8 lg:py-8">{children}</main>
+        <main className="flex-1 px-4 py-6 lg:px-8 lg:py-8 xl:px-10">
+          <div className="mx-auto w-full max-w-7xl">{children}</div>
+        </main>
       </div>
     </div>
   );

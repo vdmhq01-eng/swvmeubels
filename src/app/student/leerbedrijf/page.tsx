@@ -4,6 +4,7 @@ import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Avatar } from '@/components/ui/Avatar';
 import { Icon } from '@/components/ui/Icon';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { WhatsAppButton, WhatsAppFloating } from '@/components/portal/WhatsAppButton';
 import { getDemoSession } from '@/lib/data/session';
 import { getStudentWithCompany } from '@/lib/data/student-pages';
 
@@ -47,9 +48,13 @@ export default async function StudentLeerbedrijfPage() {
                 <p className="text-sm text-ink-500">Regio {s.company.region.name} · {s.company.membership}-lid</p>
               </div>
             </div>
-            <Link href="/student/berichten" className="btn-primary">
+            <WhatsAppButton
+              message={`Hoi${contact ? ' ' + contact.user.name.split(' ')[0] : ''}, je spreekt met ${s.user.name}. `}
+              label="App werkbegeleider"
+            />
+            <Link href="/student/berichten" className="btn-secondary">
               <Icon.Bell className="h-4 w-4" />
-              Stuur bericht
+              Portal-bericht
             </Link>
           </div>
         </CardBody>
@@ -107,6 +112,10 @@ export default async function StudentLeerbedrijfPage() {
           </CardBody>
         </Card>
       </div>
+
+      <WhatsAppFloating
+        message={`Hoi${contact ? ' ' + contact.user.name.split(' ')[0] : ''}, je spreekt met ${s.user.name}. `}
+      />
     </PortalShell>
   );
 }

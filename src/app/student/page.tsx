@@ -10,6 +10,7 @@ import { AppInstallBanner } from '@/components/portal/AppInstallBanner';
 import { StudentTutorial } from '@/components/portal/StudentTutorial';
 import { RestartTutorialButton } from '@/components/portal/RestartTutorialButton';
 import { QuickWeekEntry } from '@/components/uren/QuickWeekEntry';
+import { WhatsAppButton, WhatsAppFloating } from '@/components/portal/WhatsAppButton';
 import { getDemoSession } from '@/lib/data/session';
 import { getStudentDashboard } from '@/lib/data/dashboard';
 import { formatDate, formatHours, formatMoney } from '@/lib/utils';
@@ -71,6 +72,36 @@ export default async function StudentDashboardPage() {
           />
         </div>
       ) : null}
+
+      {/* Direct contact via WhatsApp */}
+      <div className="mb-6 overflow-hidden rounded-2xl border border-bone-200 bg-white shadow-card">
+        <div className="grid gap-4 p-5 md:grid-cols-[1fr_auto] md:items-center">
+          <div className="flex items-center gap-4">
+            <Avatar name={student.coordinator?.user.name ?? 'Coördinator'} tone="green" size="lg" />
+            <div className="min-w-0">
+              <div className="text-xs font-bold uppercase tracking-[0.18em] text-primary-600">
+                Jouw coördinator
+              </div>
+              <div className="font-display text-lg font-bold text-ink-900">
+                {student.coordinator?.user.name ?? 'Coördinator'}
+              </div>
+              <div className="text-xs text-ink-500">
+                Vragen, problemen of gewoon even praten? App of bel — geen drempel.
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <WhatsAppButton
+              message={`Hoi ${(student.coordinator?.user.name ?? '').split(' ')[0] || ''}, je spreekt met ${student.user.name}. `}
+              label="App via WhatsApp"
+            />
+            <Link href="/student/berichten" className="btn-secondary">
+              <Icon.Bell className="h-4 w-4" />
+              Stuur portal-bericht
+            </Link>
+          </div>
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
@@ -337,6 +368,10 @@ export default async function StudentDashboardPage() {
           </CardBody>
         </Card>
       </div>
+
+      <WhatsAppFloating
+        message={`Hoi ${(student.coordinator?.user.name ?? '').split(' ')[0] || 'coördinator'}, je spreekt met ${student.user.name}. `}
+      />
     </PortalShell>
   );
 }
