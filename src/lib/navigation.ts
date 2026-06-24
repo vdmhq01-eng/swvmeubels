@@ -100,6 +100,7 @@ export const navigation: Record<Role, NavItem[]> = {
     { label: 'Integraties', href: '/admin/integraties', icon: 'Link' },
     { label: 'Sync logs', href: '/admin/sync-logs', icon: 'Refresh' },
     { label: 'Audit logs', href: '/admin/audit-logs', icon: 'Lock' },
+    { label: 'Toegangslog (AVG)', href: '/admin/toegangslog', icon: 'Shield' },
     { label: 'Security logs', href: '/admin/security-logs', icon: 'Shield' },
     { label: 'Documentbeheer', href: '/admin/documenten', icon: 'Doc' },
     { label: 'FAQ beheer', href: '/admin/faq', icon: 'BookOpen' },

@@ -63,6 +63,18 @@ const pillars: Array<{
     ],
   },
   {
+    icon: <Icon.Users className="h-5 w-5" />,
+    title: 'Need-to-know — geen gedeel onder collega\'s',
+    points: [
+      { text: 'Coördinator ziet alleen eigen regio (scope-isolatie)', status: 'LIVE' },
+      { text: 'Iedere inzage gelogd in DocumentAccessLog (wie/wat/wanneer)', status: 'LIVE' },
+      { text: 'Reden verplicht bij data buiten eigen scope (NeedToKnowDialog)', status: 'LIVE' },
+      { text: 'Anomalie-alert bij >50 inzages per dag door één gebruiker', status: 'LIVE' },
+      { text: 'Bulk-export beperkt tot admin met audit log', status: 'LIVE' },
+      { text: 'Geheimhoudingsverklaring bij indiensttreding', status: 'ROADMAP' },
+    ],
+  },
+  {
     icon: <Icon.Heart className="h-5 w-5" />,
     title: 'Bewaartermijnen',
     points: [
