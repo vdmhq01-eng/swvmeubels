@@ -8,9 +8,9 @@ export default function SollicitatiePage() {
     <MarketingShell activeHref="/solliciteren">
       <Hero
         eyebrow="Solliciteren"
-        title="Doe mee aan het"
-        highlight="meubelvak."
-        description="Vul het formulier in en we nemen binnen drie werkdagen contact met je op om de mogelijkheden in jouw regio te bespreken."
+        title="Stop met scrollen."
+        highlight="Bouw iets echts."
+        description="AI praat. Jij maakt. In het meubelvak telt elke vezel, elke afwerking, elke maatvoering — door jouw handen. Vul het formulier in en je staat binnen 2 weken in de werkplaats. Op vrijdag salaris op je rekening."
         image={heroImages.solliciteren}
       />
 
