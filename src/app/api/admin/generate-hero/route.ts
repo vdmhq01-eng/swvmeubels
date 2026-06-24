@@ -79,6 +79,29 @@ const PROMPTS = {
       size: 'landscape_16_9' as const,
     },
   ],
+
+  // 3 student verhalen voor de StudentStories sectie op homepage
+  // Authentic, in-the-workshop documentary photos
+  verhalen: [
+    {
+      key: 'jamie',
+      prompt:
+        'authentic candid photo of a 19-year-old young Dutch male apprentice interior builder in a workshop, dark blonde hair, wearing work apron over t-shirt, smiling slightly at camera, holding wooden cabinet panel, warm workshop lighting, wood shavings around, vertical portrait composition, documentary photography style, hyperrealistic, shallow depth of field, natural unposed look',
+      size: 'portrait_4_3' as const,
+    },
+    {
+      key: 'lisa',
+      prompt:
+        'authentic candid photo of an 18-year-old young Dutch female apprentice furniture maker with short dark hair, wearing work overalls and safety glasses pushed up on forehead, in a workshop holding hand plane on oak wood, confident focused expression, warm side lighting from window, vertical portrait composition, documentary photography style, hyperrealistic, natural unposed authentic moment',
+      size: 'portrait_4_3' as const,
+    },
+    {
+      key: 'mark',
+      prompt:
+        'authentic candid photo of a 21-year-old young Dutch male woodworking apprentice with short brown hair, wearing work shirt and safety glasses, operating a CNC wood router in a modern workshop, focused concentration, industrial workshop lighting, vertical portrait composition, documentary photography style, hyperrealistic, professional wood-craftsman atmosphere',
+      size: 'portrait_4_3' as const,
+    },
+  ],
 };
 
 export async function GET(req: Request) {
@@ -93,10 +116,10 @@ export async function GET(req: Request) {
   const t0 = Date.now();
 
   try {
-    type Prompt = { key: string; prompt: string; size: 'portrait_16_9' | 'landscape_16_9' };
+    type Prompt = { key: string; prompt: string; size: 'portrait_16_9' | 'landscape_16_9' | 'portrait_4_3' };
     let prompts: Prompt[] = [];
     if (set === 'all') {
-      prompts = [...PROMPTS.panels, ...PROMPTS.home, ...PROMPTS.studenten, ...PROMPTS.bedrijven, ...PROMPTS.solliciteren];
+      prompts = [...PROMPTS.panels, ...PROMPTS.home, ...PROMPTS.studenten, ...PROMPTS.bedrijven, ...PROMPTS.solliciteren, ...PROMPTS.verhalen];
     } else if (set in PROMPTS) {
       prompts = PROMPTS[set as keyof typeof PROMPTS] as Prompt[];
     } else {
