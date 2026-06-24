@@ -91,11 +91,12 @@ export async function GET(req: Request) {
   const t0 = Date.now();
 
   try {
-    let prompts: typeof PROMPTS.panels = [];
+    type Prompt = { key: string; prompt: string; size: 'portrait_16_9' | 'landscape_16_9' };
+    let prompts: Prompt[] = [];
     if (set === 'all') {
       prompts = [...PROMPTS.panels, ...PROMPTS.home, ...PROMPTS.studenten, ...PROMPTS.bedrijven, ...PROMPTS.solliciteren];
     } else if (set in PROMPTS) {
-      prompts = PROMPTS[set as keyof typeof PROMPTS];
+      prompts = PROMPTS[set as keyof typeof PROMPTS] as Prompt[];
     } else {
       return NextResponse.json({ ok: false, error: `Onbekende set. Kies: ${Object.keys(PROMPTS).join(', ')}, all` }, { status: 400 });
     }
